@@ -130,6 +130,19 @@ main {
     max-height: 600px;
 }
 
+.hex-textarea {
+    width: 100%;
+    min-height: 80px;
+    background: #2f3136;
+    border: 1px solid #1a1b1e;
+    border-radius: 4px;
+    padding: 10px;
+    color: #dcddde;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    resize: vertical;
+}
+
 #userGrid {
     overflow-x: auto;
 }

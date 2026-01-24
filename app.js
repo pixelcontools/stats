@@ -219,6 +219,12 @@ function renderColorChart() {
     const data = sortedColors.map(([, count]) => count);
     const backgroundColors = sortedColors.map(([color]) => decimalToHex(color));
 
+    // Update textarea with hex values
+    const hexTextarea = document.getElementById('hexTextarea');
+    if (hexTextarea) {
+        hexTextarea.value = labels.join(', ');
+    }
+
     if (colorChart) {
         colorChart.destroy();
     }
@@ -361,10 +367,13 @@ function renderUserGrid() {
 }
 
 // COLOR SHARING TAB
+let showDefaultColorsSharing = false; // Default to hiding default colors in sharing tab
+
 function initColorSharing() {
     const userSelect = document.getElementById('userSelect');
     const mostCommonBtn = document.getElementById('mostCommonBtn');
     const leastCommonBtn = document.getElementById('leastCommonBtn');
+    const showDefaultColorsSharingCheckbox = document.getElementById('showDefaultColorsSharing');
 
     // Populate user dropdown
     processedData.users.forEach(user => {
@@ -399,6 +408,13 @@ function initColorSharing() {
             showColorSharing(parseInt(e.target.value), comparisonMode);
         }
     });
+
+    showDefaultColorsSharingCheckbox.addEventListener('change', () => {
+        showDefaultColorsSharing = showDefaultColorsSharingCheckbox.checked;
+        if (userSelect.value) {
+            showColorSharing(parseInt(userSelect.value), comparisonMode);
+        }
+    });
 }
 
 function showColorSharing(userId, mode) {
@@ -413,7 +429,13 @@ function showColorSharing(userId, mode) {
         if (user.id === userId) return;
 
         const userColors = processedData.userColors[user.id];
-        const intersection = new Set([...selectedColors].filter(c => userColors.has(c)));
+        let intersection = new Set([...selectedColors].filter(c => userColors.has(c)));
+        
+        // Filter out default colors if checkbox is not checked
+        if (!showDefaultColorsSharing) {
+            intersection = new Set([...intersection].filter(c => !DEFAULT_COLORS.includes(c)));
+        }
+        
         const inCommon = intersection.size;
         
         // Calculate colors NOT in common
@@ -457,12 +479,12 @@ function showColorSharing(userId, mode) {
                     <strong>${metric}</strong> ${metricLabel}
                 </div>
                 ${mode === 'most' && comp.sharedColors.length > 0 ? `
-                    <div class="color-samples">
-                        ${comp.sharedColors.slice(0, 20).map(color => 
+                    <div class="color-samples" id="colors-${comp.user.id}">
+                        ${comp.sharedColors.slice(0, 10).map(color => 
                             `<div class="color-sample" style="background-color: ${decimalToHex(color)};" title="${decimalToHex(color)}"></div>`
                         ).join('')}
-                        ${comp.sharedColors.length > 20 ? `<span>+${comp.sharedColors.length - 20} more</span>` : ''}
                     </div>
+                    ${comp.sharedColors.length > 10 ? `<span class="show-more" style="cursor: pointer; color: #5865f2; font-size: 0.9em;" data-user-id="${comp.user.id}" data-colors="${comp.sharedColors.map(c => decimalToHex(c)).join(',')}">+${comp.sharedColors.length - 10} more</span>` : ''}
                 ` : ''}
             </div>
         `;
@@ -477,6 +499,33 @@ function showColorSharing(userId, mode) {
             const colors = this.getAttribute('data-colors').split(',');
             const hexColors = colors.map(c => decimalToHex(c)).join(', ');
             copyToClipboard(hexColors, `Copied ${colors.length} colors!`);
+        });
+    });
+    
+    // Add click handlers for show-more/show-less
+    document.querySelectorAll('.show-more').forEach(span => {
+        span.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const hexValues = this.getAttribute('data-colors');
+            const container = document.getElementById(`colors-${userId}`);
+            
+            if (container.classList.contains('expanded')) {
+                // Collapse
+                const colors = hexValues.split(',').slice(0, 10);
+                container.innerHTML = colors.map(hex =>
+                    `<div class="color-sample" style="background-color: ${hex};" title="${hex}"></div>`
+                ).join('');
+                container.classList.remove('expanded');
+                this.textContent = `+${hexValues.split(',').length - 10} more`;
+            } else {
+                // Expand
+                const colors = hexValues.split(',');
+                container.innerHTML = colors.map(hex =>
+                    `<div class="color-sample" style="background-color: ${hex};" title="${hex}"></div>`
+                ).join('');
+                container.classList.add('expanded');
+                this.textContent = 'Show less';
+            }
         });
     });
 }

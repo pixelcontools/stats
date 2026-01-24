@@ -28,6 +28,10 @@
                 </div>
                 <div id="graphView" class="view">
                     <canvas id="colorChart"></canvas>
+                    <div style="margin-top: 20px;">
+                        <p style="color: #b0b0b0; margin-bottom: 10px;">Hex values (comma-separated):</p>
+                        <textarea class="hex-textarea" id="hexTextarea" readonly></textarea>
+                    </div>
                 </div>
                 <div id="userView" class="view hidden">
                     <div class="sort-controls">
@@ -53,6 +57,9 @@
                         <button id="mostCommonBtn" class="toggle-btn active">Most Colors in Common</button>
                         <button id="leastCommonBtn" class="toggle-btn">Least Colors in Common</button>
                     </div>
+                    <label style="margin-left: 20px;">
+                        <input type="checkbox" id="showDefaultColorsSharing"> Show default colors
+                    </label>
                 </div>
                 <div id="sharingResults"></div>
             </div>
