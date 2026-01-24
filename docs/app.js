@@ -19,31 +19,17 @@ function formatUsername(user) {
     return `${name}#${user.id}`;
 }
 
-// Utility: Show copy notification
-function showCopyNotification(text = 'Copied to clipboard!') {
-    const notification = document.createElement('div');
-    notification.className = 'copy-notification';
-    notification.textContent = text;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 2000);
-}
-
-// Utility: Copy text to clipboard
-function copyToClipboard(text) {
+// Utility: Copy to clipboard
+function copyToClipboard(text, message = 'Copied to clipboard!') {
     navigator.clipboard.writeText(text).then(() => {
-        showCopyNotification('Copied to clipboard!');
-    }).catch(() => {
-        // Fallback
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        showCopyNotification('Copied to clipboard!');
+        // Show temporary feedback
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
     });
 }
 
@@ -166,33 +152,27 @@ function showUserModal(userId) {
 let colorChart = null;
 
 function initTop500() {
-    const copyTop500Icon = document.getElementById('copyTop500Icon');
-    const copyUserColorsIcon = document.getElementById('copyUserColorsIcon');
+    const graphViewBtn = document.getElementById('graphViewBtn');
+    const userViewBtn = document.getElementById('userViewBtn');
+    const graphView = document.getElementById('graphView');
+    const userView = document.getElementById('userView');
 
-    copyTop500Icon.addEventListener('click', () => {
-        const sortedColors = Object.entries(processedData.colorCounts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 500);
-        const hexValues = sortedColors.map(([color]) => decimalToHex(color)).join(',');
-        copyToClipboard(hexValues);
+    graphViewBtn.addEventListener('click', () => {
+        graphViewBtn.classList.add('active');
+        userViewBtn.classList.remove('active');
+        graphView.classList.remove('hidden');
+        userView.classList.add('hidden');
     });
 
-    copyUserColorsIcon.addEventListener('click', () => {
-        // Get all unique colors from all users
-        const colors = [];
-        processedData.users.forEach(user => {
-            user.colors.forEach(color => {
-                if (!colors.includes(color)) {
-                    colors.push(color);
-                }
-            });
-        });
-        const hexValues = colors.map(color => decimalToHex(color)).join(',');
-        copyToClipboard(hexValues);
+    userViewBtn.addEventListener('click', () => {
+        userViewBtn.classList.add('active');
+        graphViewBtn.classList.remove('active');
+        userView.classList.remove('hidden');
+        graphView.classList.add('hidden');
+        renderUserGrid();
     });
 
     renderColorChart();
-    renderUserGrid();
 }
 
 function renderColorChart() {
@@ -205,10 +185,7 @@ function renderColorChart() {
 
     const labels = sortedColors.map(([color]) => decimalToHex(color));
     const data = sortedColors.map(([, count]) => count);
-
-    // Update textarea with hex values
-    const hexTextarea = document.getElementById('hexTextarea');
-    hexTextarea.value = labels.join(',');
+    const backgroundColors = sortedColors.map(([color]) => decimalToHex(color));
 
     if (colorChart) {
         colorChart.destroy();
@@ -221,8 +198,8 @@ function renderColorChart() {
             datasets: [{
                 label: 'Number of Owners',
                 data: data,
-                borderColor: '#4ecdc4',
-                backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
                 borderWidth: 2,
                 pointRadius: 0,
                 tension: 0.4
@@ -233,10 +210,7 @@ function renderColorChart() {
             maintainAspectRatio: true,
             plugins: {
                 legend: {
-                    display: true,
-                    labels: {
-                        color: '#e0e0e0'
-                    }
+                    display: true
                 },
                 tooltip: {
                     callbacks: {
@@ -246,47 +220,18 @@ function renderColorChart() {
                         label: function(context) {
                             return 'Owners: ' + context.parsed.y;
                         }
-                    },
-                    backgroundColor: '#1a2d4d',
-                    titleColor: '#4ecdc4',
-                    bodyColor: '#e0e0e0',
-                    borderColor: '#4ecdc4',
-                    borderWidth: 1
+                    }
                 }
             },
             scales: {
                 x: {
-                    display: true,
-                    ticks: {
-                        color: '#b0b0b0',
-                        maxRotation: 65,
-                        minRotation: 45,
-                        font: {
-                            size: 9
-                        },
-                        callback: function(value, index) {
-                            if (index % Math.ceil(labels.length / 20) === 0) {
-                                return labels[index];
-                            }
-                            return '';
-                        }
-                    },
-                    grid: {
-                        color: '#265073'
-                    }
+                    display: false
                 },
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Number of Owners',
-                        color: '#e0e0e0'
-                    },
-                    ticks: {
-                        color: '#b0b0b0'
-                    },
-                    grid: {
-                        color: '#265073'
+                        text: 'Number of Owners'
                     }
                 }
             }
@@ -307,7 +252,8 @@ function renderUserGrid() {
     // Create table HTML
     let html = '<table class="grid-table"><thead><tr><th>User</th>';
     colors.forEach(color => {
-        html += `<th style="background-color: ${decimalToHex(color)}; width: 30px;" title="${decimalToHex(color)}"></th>`;
+        const hex = decimalToHex(color);
+        html += `<th class="color-header" data-hex="${hex}" style="background-color: ${hex}; width: 20px; cursor: pointer;" title="Click to copy ${hex}"></th>`;
     });
     html += '</tr></thead><tbody>';
 
@@ -315,53 +261,32 @@ function renderUserGrid() {
         html += `<tr><td class="color-label"><span class="user-name" data-user-id="${user.id}">${formatUsername(user)}</span></td>`;
         colors.forEach(color => {
             const owned = user.colors.includes(color);
-            const bgColor = owned ? decimalToHex(color) : '#cccccc';
-            const opacity = owned ? '1' : '0.1';
-            const hex = decimalToHex(color);
-            html += `<td class="color-grid-cell" data-hex="${hex}" onclick="copyColorCell(event)" style="cursor: pointer; position: relative; height: 30px;">
-                <div class="grid-cell ${owned ? 'owned' : 'not-owned'}" style="width: 100%; height: 100%; background-color: ${bgColor}; opacity: ${opacity};" title="${hex}"></div>
-                ${owned ? `<div class="hex-value" style="display: none;">${hex}</div>` : ''}
-            </td>`;
+            if (owned) {
+                html += `<td><div class="grid-cell" style="background-color: ${decimalToHex(color)};"></div></td>`;
+            } else {
+                html += `<td></td>`;
+            }
         });
         html += '</tr>';
     });
 
     html += '</tbody></table>';
     userGrid.innerHTML = html;
-
-    // Add hover effects
-    document.querySelectorAll('.color-grid-cell').forEach(cell => {
-        cell.addEventListener('mouseenter', function() {
-            const hexValue = this.querySelector('.hex-value');
-            if (hexValue) {
-                hexValue.style.display = 'block';
-            }
-        });
-        cell.addEventListener('mouseleave', function() {
-            const hexValue = this.querySelector('.hex-value');
-            if (hexValue) {
-                hexValue.style.display = 'none';
-            }
+    
+    // Add click handlers to color headers
+    document.querySelectorAll('.color-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const hex = this.getAttribute('data-hex');
+            copyToClipboard(hex, `Copied ${hex}`);
         });
     });
 }
 
-function copyColorCell(event) {
-    const cell = event.currentTarget;
-    const hex = cell.dataset.hex;
-    if (hex) {
-        copyToClipboard(hex);
-    }
-}
-
 // COLOR SHARING TAB
-let currentSharingData = [];
-
 function initColorSharing() {
     const userSelect = document.getElementById('userSelect');
     const mostCommonBtn = document.getElementById('mostCommonBtn');
     const leastCommonBtn = document.getElementById('leastCommonBtn');
-    const copySharingIcon = document.getElementById('copySharingIcon');
 
     // Populate user dropdown
     processedData.users.forEach(user => {
@@ -396,26 +321,10 @@ function initColorSharing() {
             showColorSharing(parseInt(e.target.value), comparisonMode);
         }
     });
-
-    copySharingIcon.addEventListener('click', () => {
-        if (currentSharingData.length > 0) {
-            const allSharedColors = [];
-            currentSharingData.forEach(comp => {
-                comp.sharedColors.forEach(color => {
-                    if (!allSharedColors.includes(color)) {
-                        allSharedColors.push(color);
-                    }
-                });
-            });
-            const hexValues = allSharedColors.map(color => decimalToHex(color)).join(',');
-            copyToClipboard(hexValues);
-        }
-    });
 }
 
 function showColorSharing(userId, mode) {
     const results = document.getElementById('sharingResults');
-    const copySharingIcon = document.getElementById('copySharingIcon');
     const selectedUser = processedData.users.find(u => u.id === userId);
     if (!selectedUser) return;
 
@@ -440,10 +349,6 @@ function showColorSharing(userId, mode) {
         });
     });
 
-    // Store current sharing data
-    currentSharingData = comparisons;
-    copySharingIcon.style.display = comparisons.some(c => c.sharedColors.length > 0) ? 'inline-block' : 'none';
-
     // Sort based on mode
     if (mode === 'most') {
         comparisons.sort((a, b) => b.inCommon - a.inCommon);
@@ -456,55 +361,46 @@ function showColorSharing(userId, mode) {
     comparisons.slice(0, 20).forEach(comp => {
         const metric = mode === 'most' ? comp.inCommon : comp.notInCommon;
         const metricLabel = mode === 'most' ? 'colors in common' : 'colors NOT in common';
-        const displayColors = comp.sharedColors.slice(0, 10);
-        const hasMore = comp.sharedColors.length > 10;
         
         html += `
             <div class="comparison-result">
-                <div class="user-name" data-user-id="${comp.user.id}">${formatUsername(comp.user)}</div>
+                <div class="result-header">
+                    <div class="user-name" data-user-id="${comp.user.id}">${formatUsername(comp.user)}</div>
+                    ${mode === 'most' && comp.sharedColors.length > 0 ? `
+                        <button class="copy-btn" data-colors="${comp.sharedColors.join(',')}" title="Copy shared colors">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M13.5 5.5h-8A1.5 1.5 0 0 0 4 7v8a1.5 1.5 0 0 0 1.5 1.5h8A1.5 1.5 0 0 0 15 15V7a1.5 1.5 0 0 0-1.5-1.5z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M3 10.5H2.5A1.5 1.5 0 0 1 1 9V1.5A1.5 1.5 0 0 1 2.5 0h8A1.5 1.5 0 0 1 12 1.5V2" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    ` : ''}
+                </div>
                 <div class="stats">
                     <strong>${metric}</strong> ${metricLabel}
                 </div>
                 ${mode === 'most' && comp.sharedColors.length > 0 ? `
-                    <div class="color-samples" id="colors-${comp.user.id}">
-                        ${displayColors.map(color => 
-                            `<div class="color-sample" style="background-color: ${decimalToHex(color)};" title="${decimalToHex(color)}" onclick="copyColorCell(event)" data-hex="${decimalToHex(color)}"></div>`
+                    <div class="color-samples">
+                        ${comp.sharedColors.slice(0, 20).map(color => 
+                            `<div class="color-sample" style="background-color: ${decimalToHex(color)};" title="${decimalToHex(color)}"></div>`
                         ).join('')}
+                        ${comp.sharedColors.length > 20 ? `<span>+${comp.sharedColors.length - 20} more</span>` : ''}
                     </div>
-                    ${hasMore ? `<span class="show-more" onclick="toggleExpandColors(${comp.user.id}, '${comp.sharedColors.map(c => decimalToHex(c)).join(',')}')">+${comp.sharedColors.length - 10} more</span>` : ''}
                 ` : ''}
             </div>
         `;
     });
 
     results.innerHTML = html;
-}
-
-function toggleExpandColors(userId, hexValues) {
-    const container = document.getElementById(`colors-${userId}`);
-    const showMore = container.nextElementSibling;
     
-    if (container.classList.contains('expanded')) {
-        // Collapse
-        const colors = hexValues.split(',').slice(0, 10);
-        container.innerHTML = colors.map(hex => 
-            `<div class="color-sample" style="background-color: ${hex};" title="${hex}" onclick="copyColorCell(event)" data-hex="${hex}"></div>`
-        ).join('');
-        container.classList.remove('expanded');
-        if (showMore) {
-            showMore.textContent = `+${hexValues.split(',').length - 10} more`;
-        }
-    } else {
-        // Expand
-        const colors = hexValues.split(',');
-        container.innerHTML = colors.map(hex => 
-            `<div class="color-sample" style="background-color: ${hex};" title="${hex}" onclick="copyColorCell(event)" data-hex="${hex}"></div>`
-        ).join('');
-        container.classList.add('expanded');
-        if (showMore) {
-            showMore.textContent = 'Show less';
-        }
-    }
+    // Add click handlers for copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const colors = this.getAttribute('data-colors').split(',');
+            const hexColors = colors.map(c => decimalToHex(c)).join(', ');
+            copyToClipboard(hexColors, `Copied ${colors.length} colors!`);
+        });
+    });
 }
 
 // RANKINGS TAB

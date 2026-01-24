@@ -6,18 +6,17 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #0f1621 100%);
+    background: #36393f;
     min-height: 100vh;
     padding: 20px;
-    color: #e0e0e0;
 }
 
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    background: #0f3460;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    background: #2f3136;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     overflow: hidden;
 }
 
@@ -36,8 +35,8 @@ header h1 {
 
 .tabs {
     display: flex;
-    background: #1a2d4d;
-    border-bottom: 2px solid #16213e;
+    background: #202225;
+    border-bottom: 1px solid #1a1b1e;
 }
 
 .tab-btn {
@@ -48,25 +47,26 @@ header h1 {
     cursor: pointer;
     font-size: 1.1rem;
     font-weight: 600;
-    color: #b0b0b0;
-    transition: all 0.3s;
+    color: #8e9297;
+    transition: all 0.2s;
 }
 
 .tab-btn:hover {
-    background: #0f3460;
-    color: #e0e0e0;
+    background: #2a2c31;
+    color: #dcddde;
 }
 
 .tab-btn.active {
-    background: #0f3460;
-    color: #4ecdc4;
-    border-bottom: 3px solid #4ecdc4;
+    background: #2f3136;
+    color: #5865f2;
+    border-bottom: 2px solid #5865f2;
 }
 
 main {
     padding: 30px;
     min-height: 600px;
-    background: #0f3460;
+    background: #36393f;
+    color: #dcddde;
 }
 
 .tab-content {
@@ -86,22 +86,22 @@ main {
 
 .toggle-btn {
     padding: 10px 20px;
-    background: #1a2d4d;
-    color: #4ecdc4;
+    border: 2px solid #5865f2;
+    background: #2f3136;
+    color: #dcddde;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 4px;
     font-weight: 600;
-    transition: all 0.3s;
-    border: 2px solid #1a2d4d;
+    transition: all 0.2s;
 }
 
 .toggle-btn:hover {
-    background: #265073;
+    background: #3a3d44;
 }
 
 .toggle-btn.active {
-    background: #4ecdc4;
-    color: #0f3460;
+    background: #5865f2;
+    color: white;
 }
 
 .view {
@@ -118,44 +118,43 @@ main {
 
 #userGrid {
     overflow-x: auto;
-    overflow-y: visible;
-    max-height: none;
+    max-height: 600px;
+    overflow-y: auto;
 }
 
 .grid-table {
     border-collapse: collapse;
     width: 100%;
     font-size: 0.85rem;
-    background: #1a2d4d;
+    background: #2f3136;
 }
 
 .grid-table th, .grid-table td {
-    border: 1px solid #265073;
+    border: 1px solid #1a1b1e;
     padding: 4px 8px;
     text-align: center;
 }
 
 .grid-table th {
-    background: #4ecdc4;
-    color: #0f3460;
+    background: #202225;
+    color: #dcddde;
     position: sticky;
     top: 0;
     z-index: 10;
-    font-weight: 600;
 }
 
 .grid-table .color-label {
-    background: #265073;
+    background: #2a2c31;
     font-weight: 600;
     position: sticky;
     left: 0;
     z-index: 5;
-    color: #e0e0e0;
+    color: #dcddde;
 }
 
 .grid-table .user-name {
     cursor: pointer;
-    color: #4ecdc4;
+    color: #00aff4;
     font-weight: 600;
 }
 
@@ -164,56 +163,62 @@ main {
 }
 
 .grid-cell {
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     display: inline-block;
-    border: 1px solid #ddd;
 }
 
-.grid-cell.owned {
-    opacity: 1;
-}
-
-.grid-cell.not-owned {
-    opacity: 0.1;
-    background: #cccccc;
+.grid-table .color-header:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
 }
 
 .controls {
-    background: #1a2d4d;
+    background: #2f3136;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 4px;
     margin-bottom: 20px;
+    border: 1px solid #1a1b1e;
 }
 
 .controls label {
     font-weight: 600;
     margin-right: 10px;
-    color: #e0e0e0;
+    color: #b9bbbe;
 }
 
 #userSelect {
     padding: 8px 15px;
-    border: 2px solid #4ecdc4;
-    border-radius: 6px;
+    border: 1px solid #1a1b1e;
+    border-radius: 4px;
     font-size: 1rem;
     min-width: 250px;
-    background: #265073;
-    color: #e0e0e0;
-    cursor: pointer;
+    background: #202225;
+    color: #dcddde;
+}
+
+#sharingResults {
+    margin-top: 20px;
 }
 
 .comparison-result {
-    background: #1a2d4d;
+    background: #2f3136;
     padding: 15px;
     margin-bottom: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #4ecdc4;
+    border-radius: 4px;
+    border-left: 3px solid #5865f2;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .comparison-result .user-name {
     font-weight: 700;
-    color: #4ecdc4;
+    color: #00aff4;
     cursor: pointer;
     font-size: 1.2rem;
 }
@@ -222,19 +227,33 @@ main {
     text-decoration: underline;
 }
 
+.copy-btn {
+    background: #202225;
+    border: 1px solid #1a1b1e;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #b9bbbe;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copy-btn:hover {
+    background: #2a2c31;
+    color: #dcddde;
+    border-color: #5865f2;
+}
+
+.copy-btn svg {
+    display: block;
+}
+
 .comparison-result .stats {
     margin: 10px 0;
     font-size: 1.1rem;
-    color: #e0e0e0;
-}
-
-.comparison-result .show-more {
-    cursor: pointer;
-    color: #4ecdc4;
-    margin-top: 5px;
-    text-decoration: underline;
-    font-size: 0.95rem;
-    display: inline-block;
+    color: #dcddde;
 }
 
 .color-samples {
@@ -244,67 +263,65 @@ main {
     margin-top: 10px;
 }
 
-.color-samples.expanded {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
 .color-sample {
     width: 40px;
     height: 40px;
     border-radius: 4px;
-    border: 2px solid #4ecdc4;
+    border: 2px solid #1a1b1e;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: transform 0.2s;
 }
 
 .color-sample:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+    border-color: #5865f2;
+}
+
+.ranking-section {
+    margin-bottom: 40px;
+}
+
+.ranking-section h2 {
+    color: #5865f2;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #5865f2;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background: #1a2d4d;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    background: #2f3136;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 table thead {
-    background: #4ecdc4;
-    color: #0f3460;
+    background: #202225;
+    color: #dcddde;
 }
 
 table th, table td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #265073;
-    color: #e0e0e0;
+    border-bottom: 1px solid #1a1b1e;
+    color: #dcddde;
 }
 
 table tbody tr:hover {
-    background: #265073;
+    background: #35383e;
 }
 
 table tbody .user-name {
     cursor: pointer;
-    color: #4ecdc4;
+    color: #00aff4;
     font-weight: 600;
 }
 
-.ranking-section {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #265073;
+table tbody .user-name:hover {
+    text-decoration: underline;
 }
 
-.ranking-section h2 {
-    color: #4ecdc4;
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-}
-
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -313,8 +330,7 @@ table tbody .user-name {
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal.show {
@@ -322,19 +338,19 @@ table tbody .user-name {
 }
 
 .modal-content {
-    background-color: #0f3460;
+    background-color: #2f3136;
     margin: 10% auto;
     padding: 30px;
-    border-radius: 12px;
+    border-radius: 8px;
     width: 90%;
     max-width: 500px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
     position: relative;
-    border: 2px solid #4ecdc4;
+    color: #dcddde;
 }
 
 .close {
-    color: #b0b0b0;
+    color: #8e9297;
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -344,61 +360,53 @@ table tbody .user-name {
 
 .close:hover,
 .close:focus {
-    color: #4ecdc4;
+    color: #dcddde;
 }
 
 #modalUserInfo h2 {
-    color: #4ecdc4;
+    color: #5865f2;
     margin-bottom: 20px;
 }
 
 #modalUserInfo p {
     margin: 10px 0;
     font-size: 1.1rem;
-    color: #e0e0e0;
+    color: #dcddde;
 }
 
 #modalUserInfo .guild-tag {
     margin-top: 15px;
     padding: 10px;
-    background: #1a2d4d;
-    border-radius: 6px;
-    color: #e0e0e0;
-    border: 1px solid #265073;
+    background: #202225;
+    border-radius: 4px;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: #5865f2;
 }
 
 .error {
     text-align: center;
     padding: 40px;
     font-size: 1.2rem;
-    color: #ff6b6b;
+    color: #ed4245;
 }
 
-/* Clipboard Icon */
-.clipboard-icon {
-    cursor: pointer;
-    margin-left: 10px;
-    color: #4ecdc4;
-    font-size: 1.2rem;
-    transition: all 0.3s;
-}
-
-.clipboard-icon:hover {
-    color: #95e1d3;
-    transform: scale(1.1);
-}
-
-.copy-notification {
+.toast {
     position: fixed;
-    top: 20px;
+    bottom: 20px;
     right: 20px;
-    background: #4ecdc4;
-    color: #0f3460;
-    padding: 15px 25px;
-    border-radius: 6px;
+    background: #3ba55d;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     font-weight: 600;
-    z-index: 2000;
-    animation: slideIn 0.3s ease-out;
+    animation: slideIn 0.3s ease, slideOut 0.3s ease 1.7s;
+    z-index: 10000;
 }
 
 @keyframes slideIn {
@@ -412,50 +420,13 @@ table tbody .user-name {
     }
 }
 
-.hex-textarea {
-    width: 100%;
-    height: 100px;
-    padding: 10px;
-    border: 2px solid #4ecdc4;
-    border-radius: 6px;
-    background: #1a2d4d;
-    color: #e0e0e0;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    resize: vertical;
-    margin-top: 10px;
-}
-
-.color-grid-cell {
-    position: relative;
-    cursor: pointer;
-}
-
-.color-grid-cell:hover {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.color-grid-cell .hex-value {
-    position: absolute;
-    bottom: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1a2d4d;
-    color: #4ecdc4;
-    padding: 3px 8px;
-    border-radius: 3px;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    border: 1px solid #4ecdc4;
-    pointer-events: none;
-    transition: opacity 0.2s;
-}
-
-.loading {
-    text-align: center;
-    padding: 40px;
-    font-size: 1.2rem;
-    color: #4ecdc4;
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
 }

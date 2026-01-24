@@ -19,6 +19,20 @@ function formatUsername(user) {
     return `${name}#${user.id}`;
 }
 
+// Utility: Copy to clipboard
+function copyToClipboard(text, message = 'Copied to clipboard!') {
+    navigator.clipboard.writeText(text).then(() => {
+        // Show temporary feedback
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+    });
+}
+
 // Load and process data
 async function loadData() {
     try {
@@ -238,7 +252,8 @@ function renderUserGrid() {
     // Create table HTML
     let html = '<table class="grid-table"><thead><tr><th>User</th>';
     colors.forEach(color => {
-        html += `<th style="background-color: ${decimalToHex(color)}; width: 30px;" title="${decimalToHex(color)}"></th>`;
+        const hex = decimalToHex(color);
+        html += `<th class="color-header" data-hex="${hex}" style="background-color: ${hex}; width: 20px; cursor: pointer;" title="Click to copy ${hex}"></th>`;
     });
     html += '</tr></thead><tbody>';
 
@@ -246,15 +261,25 @@ function renderUserGrid() {
         html += `<tr><td class="color-label"><span class="user-name" data-user-id="${user.id}">${formatUsername(user)}</span></td>`;
         colors.forEach(color => {
             const owned = user.colors.includes(color);
-            const bgColor = owned ? decimalToHex(color) : '#cccccc';
-            const opacity = owned ? '1' : '0.1';
-            html += `<td><div class="grid-cell ${owned ? 'owned' : 'not-owned'}" style="background-color: ${bgColor}; opacity: ${opacity};" title="${decimalToHex(color)}"></div></td>`;
+            if (owned) {
+                html += `<td><div class="grid-cell" style="background-color: ${decimalToHex(color)};"></div></td>`;
+            } else {
+                html += `<td></td>`;
+            }
         });
         html += '</tr>';
     });
 
     html += '</tbody></table>';
     userGrid.innerHTML = html;
+    
+    // Add click handlers to color headers
+    document.querySelectorAll('.color-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const hex = this.getAttribute('data-hex');
+            copyToClipboard(hex, `Copied ${hex}`);
+        });
+    });
 }
 
 // COLOR SHARING TAB
@@ -339,7 +364,17 @@ function showColorSharing(userId, mode) {
         
         html += `
             <div class="comparison-result">
-                <div class="user-name" data-user-id="${comp.user.id}">${formatUsername(comp.user)}</div>
+                <div class="result-header">
+                    <div class="user-name" data-user-id="${comp.user.id}">${formatUsername(comp.user)}</div>
+                    ${mode === 'most' && comp.sharedColors.length > 0 ? `
+                        <button class="copy-btn" data-colors="${comp.sharedColors.join(',')}" title="Copy shared colors">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M13.5 5.5h-8A1.5 1.5 0 0 0 4 7v8a1.5 1.5 0 0 0 1.5 1.5h8A1.5 1.5 0 0 0 15 15V7a1.5 1.5 0 0 0-1.5-1.5z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M3 10.5H2.5A1.5 1.5 0 0 1 1 9V1.5A1.5 1.5 0 0 1 2.5 0h8A1.5 1.5 0 0 1 12 1.5V2" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    ` : ''}
+                </div>
                 <div class="stats">
                     <strong>${metric}</strong> ${metricLabel}
                 </div>
@@ -356,6 +391,16 @@ function showColorSharing(userId, mode) {
     });
 
     results.innerHTML = html;
+    
+    // Add click handlers for copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const colors = this.getAttribute('data-colors').split(',');
+            const hexColors = colors.map(c => decimalToHex(c)).join(', ');
+            copyToClipboard(hexColors, `Copied ${colors.length} colors!`);
+        });
+    });
 }
 
 // RANKINGS TAB

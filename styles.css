@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #36393f;
     min-height: 100vh;
     padding: 20px;
 }
@@ -14,9 +14,9 @@ body {
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    background: #2f3136;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     overflow: hidden;
 }
 
@@ -35,8 +35,8 @@ header h1 {
 
 .tabs {
     display: flex;
-    background: #f5f5f5;
-    border-bottom: 2px solid #ddd;
+    background: #202225;
+    border-bottom: 1px solid #1a1b1e;
 }
 
 .tab-btn {
@@ -47,24 +47,26 @@ header h1 {
     cursor: pointer;
     font-size: 1.1rem;
     font-weight: 600;
-    color: #666;
-    transition: all 0.3s;
+    color: #8e9297;
+    transition: all 0.2s;
 }
 
 .tab-btn:hover {
-    background: #e0e0e0;
-    color: #333;
+    background: #2a2c31;
+    color: #dcddde;
 }
 
 .tab-btn.active {
-    background: white;
-    color: #667eea;
-    border-bottom: 3px solid #667eea;
+    background: #2f3136;
+    color: #5865f2;
+    border-bottom: 2px solid #5865f2;
 }
 
 main {
     padding: 30px;
     min-height: 600px;
+    background: #36393f;
+    color: #dcddde;
 }
 
 .tab-content {
@@ -84,21 +86,21 @@ main {
 
 .toggle-btn {
     padding: 10px 20px;
-    border: 2px solid #667eea;
-    background: white;
-    color: #667eea;
+    border: 2px solid #5865f2;
+    background: #2f3136;
+    color: #dcddde;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 4px;
     font-weight: 600;
-    transition: all 0.3s;
+    transition: all 0.2s;
 }
 
 .toggle-btn:hover {
-    background: #f0f0ff;
+    background: #3a3d44;
 }
 
 .toggle-btn.active {
-    background: #667eea;
+    background: #5865f2;
     color: white;
 }
 
@@ -124,33 +126,35 @@ main {
     border-collapse: collapse;
     width: 100%;
     font-size: 0.85rem;
+    background: #2f3136;
 }
 
 .grid-table th, .grid-table td {
-    border: 1px solid #ddd;
+    border: 1px solid #1a1b1e;
     padding: 4px 8px;
     text-align: center;
 }
 
 .grid-table th {
-    background: #667eea;
-    color: white;
+    background: #202225;
+    color: #dcddde;
     position: sticky;
     top: 0;
     z-index: 10;
 }
 
 .grid-table .color-label {
-    background: #f5f5f5;
+    background: #2a2c31;
     font-weight: 600;
     position: sticky;
     left: 0;
     z-index: 5;
+    color: #dcddde;
 }
 
 .grid-table .user-name {
     cursor: pointer;
-    color: #667eea;
+    color: #00aff4;
     font-weight: 600;
 }
 
@@ -159,39 +163,38 @@ main {
 }
 
 .grid-cell {
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     display: inline-block;
-    border: 1px solid #ddd;
 }
 
-.grid-cell.owned {
-    opacity: 1;
-}
-
-.grid-cell.not-owned {
-    opacity: 0.1;
-    background: #ccc;
+.grid-table .color-header:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
 }
 
 .controls {
-    background: #f5f5f5;
+    background: #2f3136;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 4px;
     margin-bottom: 20px;
+    border: 1px solid #1a1b1e;
 }
 
 .controls label {
     font-weight: 600;
     margin-right: 10px;
+    color: #b9bbbe;
 }
 
 #userSelect {
     padding: 8px 15px;
-    border: 2px solid #667eea;
-    border-radius: 6px;
+    border: 1px solid #1a1b1e;
+    border-radius: 4px;
     font-size: 1rem;
     min-width: 250px;
+    background: #202225;
+    color: #dcddde;
 }
 
 #sharingResults {
@@ -199,16 +202,23 @@ main {
 }
 
 .comparison-result {
-    background: #f9f9f9;
+    background: #2f3136;
     padding: 15px;
     margin-bottom: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #667eea;
+    border-radius: 4px;
+    border-left: 3px solid #5865f2;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .comparison-result .user-name {
     font-weight: 700;
-    color: #667eea;
+    color: #00aff4;
     cursor: pointer;
     font-size: 1.2rem;
 }
@@ -217,9 +227,33 @@ main {
     text-decoration: underline;
 }
 
+.copy-btn {
+    background: #202225;
+    border: 1px solid #1a1b1e;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #b9bbbe;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copy-btn:hover {
+    background: #2a2c31;
+    color: #dcddde;
+    border-color: #5865f2;
+}
+
+.copy-btn svg {
+    display: block;
+}
+
 .comparison-result .stats {
     margin: 10px 0;
     font-size: 1.1rem;
+    color: #dcddde;
 }
 
 .color-samples {
@@ -233,14 +267,14 @@ main {
     width: 40px;
     height: 40px;
     border-radius: 4px;
-    border: 2px solid #ddd;
+    border: 2px solid #1a1b1e;
     cursor: pointer;
     transition: transform 0.2s;
 }
 
 .color-sample:hover {
     transform: scale(1.1);
-    border-color: #333;
+    border-color: #5865f2;
 }
 
 .ranking-section {
@@ -248,37 +282,38 @@ main {
 }
 
 .ranking-section h2 {
-    color: #667eea;
+    color: #5865f2;
     margin-bottom: 15px;
     padding-bottom: 10px;
-    border-bottom: 3px solid #667eea;
+    border-bottom: 2px solid #5865f2;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: #2f3136;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 table thead {
-    background: #667eea;
-    color: white;
+    background: #202225;
+    color: #dcddde;
 }
 
 table th, table td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #1a1b1e;
+    color: #dcddde;
 }
 
 table tbody tr:hover {
-    background: #f5f5ff;
+    background: #35383e;
 }
 
 table tbody .user-name {
     cursor: pointer;
-    color: #667eea;
+    color: #00aff4;
     font-weight: 600;
 }
 
@@ -303,18 +338,19 @@ table tbody .user-name:hover {
 }
 
 .modal-content {
-    background-color: white;
+    background-color: #2f3136;
     margin: 10% auto;
     padding: 30px;
-    border-radius: 12px;
+    border-radius: 8px;
     width: 90%;
     max-width: 500px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
     position: relative;
+    color: #dcddde;
 }
 
 .close {
-    color: #aaa;
+    color: #8e9297;
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -324,36 +360,73 @@ table tbody .user-name:hover {
 
 .close:hover,
 .close:focus {
-    color: #000;
+    color: #dcddde;
 }
 
 #modalUserInfo h2 {
-    color: #667eea;
+    color: #5865f2;
     margin-bottom: 20px;
 }
 
 #modalUserInfo p {
     margin: 10px 0;
     font-size: 1.1rem;
+    color: #dcddde;
 }
 
 #modalUserInfo .guild-tag {
     margin-top: 15px;
     padding: 10px;
-    background: #f5f5f5;
-    border-radius: 6px;
+    background: #202225;
+    border-radius: 4px;
 }
 
 .loading {
     text-align: center;
     padding: 40px;
     font-size: 1.2rem;
-    color: #667eea;
+    color: #5865f2;
 }
 
 .error {
     text-align: center;
     padding: 40px;
     font-size: 1.2rem;
-    color: #d32f2f;
+    color: #ed4245;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #3ba55d;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+    animation: slideIn 0.3s ease, slideOut 0.3s ease 1.7s;
+    z-index: 10000;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
 }
