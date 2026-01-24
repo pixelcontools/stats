@@ -26,20 +26,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject User Data
-        env:
-          USER_DATA: ${{ secrets.USER_DATA }}
+      - name: Copy User Data
         run: |
-          # Create a temporary file with the user data
-          echo "$USER_DATA" > docs/userdata.json
-          
-          # Verify the data is valid JSON
-          if ! jq empty docs/userdata.json 2>/dev/null; then
-            echo "Error: USER_DATA is not valid JSON"
-            exit 1
-          fi
-          
-          echo "User data successfully injected into docs folder"
+          # Copy userdata.json from root to docs folder
+          cp userdata.json docs/userdata.json
+          echo "User data successfully copied to docs folder"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

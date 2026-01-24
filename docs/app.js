@@ -66,12 +66,12 @@ async function loadData() {
 // Process raw data
 function processData() {
     processedData.users = fullUserData.map(user => {
-        const colors = user.colors ? user.colors.split(',').map(c => c.trim()).filter(c => c) : [];
+        // Map short keys: i=id, n=name, l=level, c=colors
+        const colors = user.c ? user.c.split(',').map(c => c.trim()).filter(c => c) : [];
         return {
-            id: user.id,
-            name: user.name,
-            level: user.level,
-            guildTag: user.guildTag,
+            id: user.i,
+            name: user.n,
+            level: user.l,
             colors: colors
         };
     });
@@ -155,7 +155,7 @@ function showUserModal(userId) {
         <p><strong>Colors Owned:</strong> ${user.colors.length}</p>
         <div class="guild-tag">
             <strong>Guild Tag:</strong><br>
-            ${user.guildTag}
+            💛<span style="display: inline-block; background: linear-gradient(135deg, rgba(213, 45, 0, 1), rgba(239, 118, 39, 1), rgba(255, 255, 255, 1), rgba(209, 98, 164, 1), rgba(181, 86, 144, 1)); box-shadow: 0 0 10px rgba(0, 0, 0, 0.4); font-family: &quot;Press Start 2P&quot;, &quot;Courier New&quot;, monospace; font-size: 24px; font-weight: bold; font-style: italic; letter-spacing: 2px; text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.6); padding: 10px 14px; border-radius: 6px"><span style="color: rgba(25, 130, 196, 1)">PI</span><span style="color: rgba(231, 29, 54, 1)">XEL</span><span style="color: rgba(25, 130, 196, 1)">CONS</span></span>💙
         </div>
     `;
 
