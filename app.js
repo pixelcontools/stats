@@ -198,10 +198,17 @@ function renderColorChart() {
             datasets: [{
                 label: 'Number of Owners',
                 data: data,
-                borderColor: '#667eea',
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                borderWidth: 2,
-                pointRadius: 0,
+                borderColor: '#5865f2',
+                backgroundColor: 'rgba(88, 101, 242, 0.1)',
+                borderWidth: 3,
+                pointRadius: 3,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#5865f2',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointHoverBackgroundColor: '#ffffff',
+                pointHoverBorderColor: '#5865f2',
+                pointHoverBorderWidth: 2,
                 tension: 0.4
             }]
         },
@@ -210,9 +217,17 @@ function renderColorChart() {
             maintainAspectRatio: true,
             plugins: {
                 legend: {
-                    display: true
+                    display: true,
+                    labels: {
+                        color: '#dcddde'
+                    }
                 },
                 tooltip: {
+                    backgroundColor: '#202225',
+                    titleColor: '#dcddde',
+                    bodyColor: '#dcddde',
+                    borderColor: '#5865f2',
+                    borderWidth: 1,
                     callbacks: {
                         title: function(context) {
                             return 'Color: ' + context[0].label;
@@ -228,6 +243,12 @@ function renderColorChart() {
                     display: false
                 },
                 y: {
+                    grid: {
+                        color: '#1a1b1e'
+                    },
+                    ticks: {
+                        color: '#b9bbbe'
+                    },
                     beginAtZero: true,
                     title: {
                         display: true,
@@ -253,7 +274,9 @@ function renderUserGrid() {
     let html = '<table class="grid-table"><thead><tr><th>User</th>';
     colors.forEach(color => {
         const hex = decimalToHex(color);
-        html += `<th class="color-header" data-hex="${hex}" style="background-color: ${hex}; width: 20px; cursor: pointer;" title="Click to copy ${hex}"></th>`;
+        html += `<th class="color-header" data-hex="${hex}" style="background-color: ${hex}; width: 20px; cursor: pointer;">
+            <span class="color-tooltip">${hex}</span>
+        </th>`;
     });
     html += '</tr></thead><tbody>';
 

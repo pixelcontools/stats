@@ -113,13 +113,11 @@ main {
 }
 
 #colorChart {
-    max-height: 500px;
+    max-height: 600px;
 }
 
 #userGrid {
     overflow-x: auto;
-    max-height: 600px;
-    overflow-y: auto;
 }
 
 .grid-table {
@@ -168,9 +166,49 @@ main {
     display: inline-block;
 }
 
+.grid-table .color-header {
+    position: relative;
+}
+
 .grid-table .color-header:hover {
     opacity: 0.8;
     transform: scale(1.05);
+}
+
+.color-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #202225;
+    color: #dcddde;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+    margin-bottom: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    transition: opacity 0.2s, visibility 0.2s;
+}
+
+.color-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #202225;
+}
+
+.grid-table .color-header:hover .color-tooltip {
+    visibility: visible;
+    opacity: 1;
 }
 
 .controls {

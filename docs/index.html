@@ -22,22 +22,14 @@
         <main>
             <!-- Top 500 Tab -->
             <div id="top500" class="tab-content active">
-                <div id="graphView" class="view">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h3 style="color: #e0e0e0;">Top 500 Colors</h3>
-                        <span class="clipboard-icon" id="copyTop500Icon" title="Copy all hex values">📋</span>
-                    </div>
-                    <canvas id="colorChart"></canvas>
-                    <div style="margin-top: 20px;">
-                        <p style="color: #b0b0b0; margin-bottom: 10px;">Hex values (comma-separated):</p>
-                        <textarea class="hex-textarea" id="hexTextarea" readonly></textarea>
-                    </div>
+                <div class="view-toggle">
+                    <button id="graphViewBtn" class="toggle-btn active">Graph View</button>
+                    <button id="userViewBtn" class="toggle-btn">User View</button>
                 </div>
-                <div id="userView" class="view" style="margin-top: 40px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h3 style="color: #e0e0e0;">User Colors Grid</h3>
-                        <span class="clipboard-icon" id="copyUserColorsIcon" title="Copy user's colors">📋</span>
-                    </div>
+                <div id="graphView" class="view">
+                    <canvas id="colorChart"></canvas>
+                </div>
+                <div id="userView" class="view hidden">
                     <div id="userGrid"></div>
                 </div>
             </div>
@@ -52,9 +44,6 @@
                     <div class="comparison-toggle">
                         <button id="mostCommonBtn" class="toggle-btn active">Most Colors in Common</button>
                         <button id="leastCommonBtn" class="toggle-btn">Least Colors in Common</button>
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <span class="clipboard-icon" id="copySharingIcon" title="Copy shared colors" style="display: none;">📋 Copy All</span>
                     </div>
                 </div>
                 <div id="sharingResults"></div>
