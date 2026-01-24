@@ -150,12 +150,15 @@ function showUserModal(userId) {
 
 // TOP 500 TAB
 let colorChart = null;
+let currentSort = 'colors'; // 'colors' or 'alpha'
 
 function initTop500() {
     const graphViewBtn = document.getElementById('graphViewBtn');
     const userViewBtn = document.getElementById('userViewBtn');
     const graphView = document.getElementById('graphView');
     const userView = document.getElementById('userView');
+    const sortByColorsBtn = document.getElementById('sortByColorsBtn');
+    const sortAlphaBtn = document.getElementById('sortAlphaBtn');
 
     graphViewBtn.addEventListener('click', () => {
         graphViewBtn.classList.add('active');
@@ -169,6 +172,20 @@ function initTop500() {
         graphViewBtn.classList.remove('active');
         userView.classList.remove('hidden');
         graphView.classList.add('hidden');
+        renderUserGrid();
+    });
+
+    sortByColorsBtn.addEventListener('click', () => {
+        currentSort = 'colors';
+        sortByColorsBtn.classList.add('active');
+        sortAlphaBtn.classList.remove('active');
+        renderUserGrid();
+    });
+
+    sortAlphaBtn.addEventListener('click', () => {
+        currentSort = 'alpha';
+        sortAlphaBtn.classList.add('active');
+        sortByColorsBtn.classList.remove('active');
         renderUserGrid();
     });
 
@@ -270,6 +287,24 @@ function renderUserGrid() {
 
     const colors = sortedColors.map(([color]) => color);
 
+    // Sort users based on current sort mode
+    let sortedUsers = [...processedData.users];
+    if (currentSort === 'colors') {
+        // Sort by number of colors owned in top 500 (descending)
+        sortedUsers.sort((a, b) => {
+            const aCount = a.colors.filter(c => colors.includes(c)).length;
+            const bCount = b.colors.filter(c => colors.includes(c)).length;
+            return bCount - aCount;
+        });
+    } else {
+        // Sort alphabetically by username
+        sortedUsers.sort((a, b) => {
+            const nameA = formatUsername(a).toLowerCase();
+            const nameB = formatUsername(b).toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
+    }
+
     // Create table HTML
     let html = '<table class="grid-table"><thead><tr><th>User</th>';
     colors.forEach(color => {
@@ -280,7 +315,7 @@ function renderUserGrid() {
     });
     html += '</tr></thead><tbody>';
 
-    processedData.users.forEach(user => {
+    sortedUsers.forEach(user => {
         html += `<tr><td class="color-label"><span class="user-name" data-user-id="${user.id}">${formatUsername(user)}</span></td>`;
         colors.forEach(color => {
             const owned = user.colors.includes(color);
