@@ -4,6 +4,4 @@ node_modules/
 .env
 dist/
 .playwright*/
-# Root userdata.json is for local development
-# Deployed version uses docs/userdata.json injected via GitHub Actions
-userdata.json
+optimize_json.py

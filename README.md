@@ -24,22 +24,13 @@ An interactive web application to visualize and analyze Pixelcon color ownership
 
 ## Setup Instructions
 
-### 1. Add Repository Secret
-
-1. Go to your repository on GitHub
-2. Navigate to **Settings** → **Secrets and variables** → **Actions**
-3. Click **New repository secret**
-4. Name: `USER_DATA`
-5. Value: Paste the entire contents of your `userdata.json` file
-6. Click **Add secret**
-
-### 2. Enable GitHub Pages
+### 1. Enable GitHub Pages
 
 1. Go to **Settings** → **Pages**
 2. Under **Source**, select **GitHub Actions**
 3. The site will automatically deploy when you push to the `main` branch
 
-### 3. Deploy
+### 2. Deploy
 
 Simply push your code to the `main` branch:
 
@@ -50,47 +41,37 @@ git push origin main
 ```
 
 The GitHub Actions workflow will automatically:
-- Inject your secret data at build time
+- Copy userdata.json to the docs folder
 - Deploy the site to GitHub Pages
-- Make it available at `https://<your-username>.github.io/pixelcon-stats/`
+- Make it available at `https://<your-username>.github.io/stats/`
 
 ## Local Development
 
-To test locally before deploying:
+To test locally:
 
-1. Make sure `userdata.json` is in the root directory (it's gitignored, so it won't be committed)
-2. Serve the files with a local server:
+1. Serve the files with a local server:
    ```bash
    python -m http.server 8000
    # or
    npx serve .
    ```
-3. Open `http://localhost:8000` in your browser
-
-## Security
-
-- The raw `userdata.json` file is **never** committed to the repository
-- Data is stored as a GitHub secret and injected only at build time
-- The deployed site will have the data, but your source code history remains clean
-
-## Technologies Used
-
-- **Chart.js**: For the color ownership line graph
-- **Vanilla JavaScript**: No framework dependencies
-- **GitHub Actions**: Automated deployment with secret injection
-- **GitHub Pages**: Free static hosting
+2. Open `http://localhost:8000` in your browser
 
 ## File Structure
 
 ```
-pixelcon-stats/
+stats/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml          # GitHub Actions workflow
+├── docs/                       # Deployed files
+│   ├── index.html
+│   ├── styles.css
+│   └── app.js
 ├── index.html                  # Main HTML structure
 ├── styles.css                  # Styling
 ├── app.js                      # Application logic
-├── .gitignore                  # Excludes userdata.json
+├── userdata.json              # User data (committed to repo)
 └── README.md                   # This file
 ```
 
