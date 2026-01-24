@@ -151,6 +151,15 @@ function showUserModal(userId) {
 // TOP 500 TAB
 let colorChart = null;
 let currentSort = 'colors'; // 'colors' or 'alpha'
+let showDefaultColors = false; // By default, hide the colors everyone has
+
+// The first 29 colors that everyone has by default (from #FFFFFF to #000000)
+const DEFAULT_COLORS = [
+    '16777215', '16053663', '16763450', '16752412', '16734558', '15146294', '15973314', '16745889',
+    '12411773', '13481179', '6966419', '5052749', '11063516', '3065014', '1725276', '7183821',
+    '1671876', '10600833', '9095462', '10526880', '7029286', '5263440', '13619320', '1333882',
+    '9116964', '12615546', '12884588', '5995292', '0'
+];
 
 function initTop500() {
     const graphViewBtn = document.getElementById('graphViewBtn');
@@ -159,6 +168,7 @@ function initTop500() {
     const userView = document.getElementById('userView');
     const sortByColorsBtn = document.getElementById('sortByColorsBtn');
     const sortAlphaBtn = document.getElementById('sortAlphaBtn');
+    const showDefaultColorsCheckbox = document.getElementById('showDefaultColors');
 
     graphViewBtn.addEventListener('click', () => {
         graphViewBtn.classList.add('active');
@@ -186,6 +196,11 @@ function initTop500() {
         currentSort = 'alpha';
         sortAlphaBtn.classList.add('active');
         sortByColorsBtn.classList.remove('active');
+        renderUserGrid();
+    });
+
+    showDefaultColorsCheckbox.addEventListener('change', () => {
+        showDefaultColors = showDefaultColorsCheckbox.checked;
         renderUserGrid();
     });
 
@@ -281,9 +296,14 @@ function renderUserGrid() {
     const userGrid = document.getElementById('userGrid');
     
     // Get top 500 colors
-    const sortedColors = Object.entries(processedData.colorCounts)
+    let sortedColors = Object.entries(processedData.colorCounts)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 500);
+
+    // Filter out default colors if checkbox is not checked
+    if (!showDefaultColors) {
+        sortedColors = sortedColors.filter(([color]) => !DEFAULT_COLORS.includes(color));
+    }
 
     const colors = sortedColors.map(([color]) => color);
 
