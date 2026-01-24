@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixelcon Stats</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💛 Pixelcon Stats 💙</h1>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="top500">Top 500</button>
+            <button class="tab-btn" data-tab="sharing">Color Sharing</button>
+            <button class="tab-btn" data-tab="rankings">Rankings</button>
+        </nav>
+
+        <main>
+            <!-- Top 500 Tab -->
+            <div id="top500" class="tab-content active">
+                <div class="view-toggle">
+                    <button id="graphViewBtn" class="toggle-btn active">Graph View</button>
+                    <button id="userViewBtn" class="toggle-btn">User View</button>
+                </div>
+                <div id="graphView" class="view">
+                    <canvas id="colorChart"></canvas>
+                </div>
+                <div id="userView" class="view hidden">
+                    <div id="userGrid"></div>
+                </div>
+            </div>
+
+            <!-- Color Sharing Tab -->
+            <div id="sharing" class="tab-content">
+                <div class="controls">
+                    <label for="userSelect">Select User:</label>
+                    <select id="userSelect">
+                        <option value="">-- Choose a user --</option>
+                    </select>
+                    <div class="comparison-toggle">
+                        <button id="mostCommonBtn" class="toggle-btn active">Most Colors in Common</button>
+                        <button id="leastCommonBtn" class="toggle-btn">Least Colors in Common</button>
+                    </div>
+                </div>
+                <div id="sharingResults"></div>
+            </div>
+
+            <!-- Rankings Tab -->
+            <div id="rankings" class="tab-content">
+                <div class="ranking-section">
+                    <h2>Most Colors Owned</h2>
+                    <table id="mostColorsTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>User</th>
+                                <th>Colors Owned</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="ranking-section">
+                    <h2>Most Shared Colors</h2>
+                    <table id="mostSharedTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>User</th>
+                                <th>Total Shared Colors</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="ranking-section">
+                    <h2>Most Unique Colors</h2>
+                    <table id="mostUniqueTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>User</th>
+                                <th>Unique Colors</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalUserInfo"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
