@@ -77,11 +77,25 @@ main {
     display: block;
 }
 
-.view-toggle, .comparison-toggle {
+.view-toggle, .comparison-toggle, .sort-controls {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
     justify-content: center;
+    align-items: center;
+}
+
+.sort-controls {
+    background: #2f3136;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #1a1b1e;
+}
+
+.sort-controls label {
+    color: #b9bbbe;
+    font-weight: 600;
+    margin-right: 10px;
 }
 
 .toggle-btn {
