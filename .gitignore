@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+*.log
+.env
+dist/
+.playwright*/
+# Root userdata.json is for local development
+# Deployed version uses docs/userdata.json injected via GitHub Actions
+userdata.json
