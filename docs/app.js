@@ -471,32 +471,55 @@ function showTopPartners(userId) {
         </div>`;
     }
 
-    // Hero section for #1 partner
-    let html = `
-        <div class="partner-hero">
-            <div class="partner-label">Your #1 Partner</div>
-            <div class="partner-name user-name" data-user-id="${best.user.id}">${formatUsername(best.user)}</div>
-            <div class="partner-stat"><strong>${best.inCommon}</strong> colors co-owned</div>
-        </div>
+    function copyBtnHtml(colors) {
+        if (colors.length === 0) return '';
+        return `<button class="copy-btn" data-colors="${colors.join(',')}" title="Copy colors">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M13.5 5.5h-8A1.5 1.5 0 0 0 4 7v8a1.5 1.5 0 0 0 1.5 1.5h8A1.5 1.5 0 0 0 15 15V7a1.5 1.5 0 0 0-1.5-1.5z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M3 10.5H2.5A1.5 1.5 0 0 1 1 9V1.5A1.5 1.5 0 0 1 2.5 0h8A1.5 1.5 0 0 1 12 1.5V2" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+        </button>`;
+    }
 
-        <div class="partner-section">
-            <h3>Co-Owned Colors (${best.sharedColors.length})</h3>
-            ${renderColorGrid(best.sharedColors)}
-        </div>
+    let html = '';
 
-        <div class="partner-columns">
-            <div class="partner-section">
-                <h3>Only ${formatUsername(me)} (${onlyMine.length})</h3>
-                ${renderColorGrid(onlyMine)}
+    // Hero section for #1 partner (only in "most" mode)
+    if (partnerComparisonMode === 'most') {
+        html += `
+            <div class="partner-hero">
+                <div class="partner-label">Your #1 Partner</div>
+                <div class="partner-name user-name" data-user-id="${best.user.id}">${formatUsername(best.user)}</div>
+                <div class="partner-stat"><strong>${best.inCommon}</strong> colors co-owned</div>
             </div>
-            <div class="partner-section">
-                <h3>Only ${formatUsername(best.user)} (${onlyTheirs.length})</h3>
-                ${renderColorGrid(onlyTheirs)}
-            </div>
-        </div>
-    `;
 
-    // Runner-ups section
+            <div class="partner-section">
+                <div class="section-header">
+                    <h3>Co-Owned Colors (${best.sharedColors.length})</h3>
+                    ${copyBtnHtml(best.sharedColors)}
+                </div>
+                ${renderColorGrid(best.sharedColors)}
+            </div>
+
+            <div class="partner-columns">
+                <div class="partner-section">
+                    <div class="section-header">
+                        <h3>Only ${formatUsername(me)} (${onlyMine.length})</h3>
+                        ${copyBtnHtml(onlyMine)}
+                    </div>
+                    ${renderColorGrid(onlyMine)}
+                </div>
+                <div class="partner-section">
+                    <div class="section-header">
+                        <h3>Only ${formatUsername(best.user)} (${onlyTheirs.length})</h3>
+                        ${copyBtnHtml(onlyTheirs)}
+                    </div>
+                    ${renderColorGrid(onlyTheirs)}
+                </div>
+            </div>
+        `;
+    }
+
+    // Runner-ups / least-common list
     const startIdx = (partnerComparisonMode === 'most') ? 1 : 0;
     const runnersToShow = comparisons.slice(startIdx, startIdx + 19);
 
@@ -512,14 +535,7 @@ function showTopPartners(userId) {
                 <div class="comparison-result">
                     <div class="result-header">
                         <div class="user-name" data-user-id="${comp.user.id}">${formatUsername(comp.user)}</div>
-                        ${partnerComparisonMode === 'most' && comp.sharedColors.length > 0 ? `
-                            <button class="copy-btn" data-colors="${comp.sharedColors.join(',')}" title="Copy shared colors">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M13.5 5.5h-8A1.5 1.5 0 0 0 4 7v8a1.5 1.5 0 0 0 1.5 1.5h8A1.5 1.5 0 0 0 15 15V7a1.5 1.5 0 0 0-1.5-1.5z" stroke="currentColor" stroke-width="1.5"/>
-                                    <path d="M3 10.5H2.5A1.5 1.5 0 0 1 1 9V1.5A1.5 1.5 0 0 1 2.5 0h8A1.5 1.5 0 0 1 12 1.5V2" stroke="currentColor" stroke-width="1.5"/>
-                                </svg>
-                            </button>
-                        ` : ''}
+                        ${partnerComparisonMode === 'most' && comp.sharedColors.length > 0 ? copyBtnHtml(comp.sharedColors) : ''}
                     </div>
                     <div class="stats">
                         <strong>${metric}</strong> ${metricLabel}

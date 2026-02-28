@@ -392,6 +392,18 @@ main {
     border-bottom: 1px solid #1a1b1e;
 }
 
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-header h3 {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
 .partner-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
