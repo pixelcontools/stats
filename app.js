@@ -82,8 +82,7 @@ function initializeApp() {
     setupTabSwitching();
     setupUserModal();
     initTop500();
-    initMyPartner();
-    initColorSharing();
+    initTopPartners();
     initRankings();
 }
 
@@ -367,12 +366,15 @@ function renderUserGrid() {
     });
 }
 
-// MY PARTNER TAB
+// MY TOP PARTNERS TAB
 let partnerShowDefault = false;
+let partnerComparisonMode = 'most';
 
-function initMyPartner() {
+function initTopPartners() {
     const userSelect = document.getElementById('partnerUserSelect');
     const showDefaultCheckbox = document.getElementById('partnerShowDefault');
+    const mostCommonBtn = document.getElementById('mostCommonBtn');
+    const leastCommonBtn = document.getElementById('leastCommonBtn');
 
     // Populate dropdown alphabetically
     const sorted = [...processedData.users].sort((a, b) =>
@@ -386,53 +388,75 @@ function initMyPartner() {
     });
 
     userSelect.addEventListener('change', (e) => {
-        if (e.target.value) showPartnerResults(parseInt(e.target.value));
+        if (e.target.value) showTopPartners(parseInt(e.target.value));
     });
 
     showDefaultCheckbox.addEventListener('change', () => {
         partnerShowDefault = showDefaultCheckbox.checked;
-        if (userSelect.value) showPartnerResults(parseInt(userSelect.value));
+        if (userSelect.value) showTopPartners(parseInt(userSelect.value));
+    });
+
+    mostCommonBtn.addEventListener('click', () => {
+        partnerComparisonMode = 'most';
+        mostCommonBtn.classList.add('active');
+        leastCommonBtn.classList.remove('active');
+        if (userSelect.value) showTopPartners(parseInt(userSelect.value));
+    });
+
+    leastCommonBtn.addEventListener('click', () => {
+        partnerComparisonMode = 'least';
+        leastCommonBtn.classList.add('active');
+        mostCommonBtn.classList.remove('active');
+        if (userSelect.value) showTopPartners(parseInt(userSelect.value));
     });
 }
 
-function showPartnerResults(userId) {
+function showTopPartners(userId) {
     const container = document.getElementById('partnerResults');
     const me = processedData.users.find(u => u.id === userId);
     if (!me) return;
 
     const myColors = processedData.userColors[userId];
-
-    // Find the partner (user who co-owns the most colors with me, excluding defaults if needed)
-    let bestPartner = null;
-    let bestCount = -1;
-    let bestShared = [];
+    const comparisons = [];
 
     processedData.users.forEach(other => {
         if (other.id === userId) return;
         const otherColors = processedData.userColors[other.id];
-        let shared = [...myColors].filter(c => otherColors.has(c));
+        let intersection = new Set([...myColors].filter(c => otherColors.has(c)));
         if (!partnerShowDefault) {
-            shared = shared.filter(c => !DEFAULT_COLORS.includes(c));
+            intersection = new Set([...intersection].filter(c => !DEFAULT_COLORS.includes(c)));
         }
-        if (shared.length > bestCount) {
-            bestCount = shared.length;
-            bestPartner = other;
-            bestShared = shared;
-        }
+        const inCommon = intersection.size;
+        const notInCommon = (myColors.size - inCommon) + (otherColors.size - inCommon);
+        comparisons.push({
+            user: other,
+            inCommon: inCommon,
+            notInCommon: notInCommon,
+            sharedColors: Array.from(intersection)
+        });
     });
 
-    if (!bestPartner) {
+    // Sort based on mode
+    if (partnerComparisonMode === 'most') {
+        comparisons.sort((a, b) => b.inCommon - a.inCommon);
+    } else {
+        comparisons.sort((a, b) => b.notInCommon - a.notInCommon);
+    }
+
+    // #1 partner is always the user with most colors in common
+    const mostSorted = [...comparisons].sort((a, b) => b.inCommon - a.inCommon);
+    const best = mostSorted[0];
+
+    if (!best) {
         container.innerHTML = '<p style="color:#8e9297;">No partner found.</p>';
         return;
     }
 
-    const partnerColors = processedData.userColors[bestPartner.id];
+    const bestPartnerColors = processedData.userColors[best.user.id];
 
-    // Colors only I own
-    let onlyMine = [...myColors].filter(c => !partnerColors.has(c));
-    // Colors only partner owns
-    let onlyTheirs = [...partnerColors].filter(c => !myColors.has(c));
-
+    // Colors only I own vs best partner
+    let onlyMine = [...myColors].filter(c => !bestPartnerColors.has(c));
+    let onlyTheirs = [...bestPartnerColors].filter(c => !myColors.has(c));
     if (!partnerShowDefault) {
         onlyMine = onlyMine.filter(c => !DEFAULT_COLORS.includes(c));
         onlyTheirs = onlyTheirs.filter(c => !DEFAULT_COLORS.includes(c));
@@ -447,16 +471,17 @@ function showPartnerResults(userId) {
         </div>`;
     }
 
-    container.innerHTML = `
+    // Hero section for #1 partner
+    let html = `
         <div class="partner-hero">
             <div class="partner-label">Your #1 Partner</div>
-            <div class="partner-name user-name" data-user-id="${bestPartner.id}">${formatUsername(bestPartner)}</div>
-            <div class="partner-stat"><strong>${bestShared.length}</strong> colors co-owned</div>
+            <div class="partner-name user-name" data-user-id="${best.user.id}">${formatUsername(best.user)}</div>
+            <div class="partner-stat"><strong>${best.inCommon}</strong> colors co-owned</div>
         </div>
 
         <div class="partner-section">
-            <h3>Co-Owned Colors (${bestShared.length})</h3>
-            ${renderColorGrid(bestShared)}
+            <h3>Co-Owned Colors (${best.sharedColors.length})</h3>
+            ${renderColorGrid(best.sharedColors)}
         </div>
 
         <div class="partner-columns">
@@ -465,141 +490,58 @@ function showPartnerResults(userId) {
                 ${renderColorGrid(onlyMine)}
             </div>
             <div class="partner-section">
-                <h3>Only ${formatUsername(bestPartner)} (${onlyTheirs.length})</h3>
+                <h3>Only ${formatUsername(best.user)} (${onlyTheirs.length})</h3>
                 ${renderColorGrid(onlyTheirs)}
             </div>
         </div>
     `;
-}
 
-// COLOR SHARING TAB
-let showDefaultColorsSharing = false; // Default to hiding default colors in sharing tab
+    // Runner-ups section
+    const startIdx = (partnerComparisonMode === 'most') ? 1 : 0;
+    const runnersToShow = comparisons.slice(startIdx, startIdx + 19);
 
-function initColorSharing() {
-    const userSelect = document.getElementById('userSelect');
-    const mostCommonBtn = document.getElementById('mostCommonBtn');
-    const leastCommonBtn = document.getElementById('leastCommonBtn');
-    const showDefaultColorsSharingCheckbox = document.getElementById('showDefaultColorsSharing');
+    if (runnersToShow.length > 0) {
+        const modeLabel = partnerComparisonMode === 'most' ? 'Runner-Ups' : 'Least Colors in Common';
+        html += `<h2 class="runner-ups-heading">${modeLabel}</h2>`;
 
-    // Populate user dropdown
-    processedData.users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = formatUsername(user);
-        userSelect.appendChild(option);
-    });
+        runnersToShow.forEach(comp => {
+            const metric = partnerComparisonMode === 'most' ? comp.inCommon : comp.notInCommon;
+            const metricLabel = partnerComparisonMode === 'most' ? 'colors in common' : 'colors NOT in common';
 
-    let comparisonMode = 'most'; // 'most' or 'least'
-
-    mostCommonBtn.addEventListener('click', () => {
-        comparisonMode = 'most';
-        mostCommonBtn.classList.add('active');
-        leastCommonBtn.classList.remove('active');
-        if (userSelect.value) {
-            showColorSharing(parseInt(userSelect.value), comparisonMode);
-        }
-    });
-
-    leastCommonBtn.addEventListener('click', () => {
-        comparisonMode = 'least';
-        leastCommonBtn.classList.add('active');
-        mostCommonBtn.classList.remove('active');
-        if (userSelect.value) {
-            showColorSharing(parseInt(userSelect.value), comparisonMode);
-        }
-    });
-
-    userSelect.addEventListener('change', (e) => {
-        if (e.target.value) {
-            showColorSharing(parseInt(e.target.value), comparisonMode);
-        }
-    });
-
-    showDefaultColorsSharingCheckbox.addEventListener('change', () => {
-        showDefaultColorsSharing = showDefaultColorsSharingCheckbox.checked;
-        if (userSelect.value) {
-            showColorSharing(parseInt(userSelect.value), comparisonMode);
-        }
-    });
-}
-
-function showColorSharing(userId, mode) {
-    const results = document.getElementById('sharingResults');
-    const selectedUser = processedData.users.find(u => u.id === userId);
-    if (!selectedUser) return;
-
-    const selectedColors = processedData.userColors[userId];
-    const comparisons = [];
-
-    processedData.users.forEach(user => {
-        if (user.id === userId) return;
-
-        const userColors = processedData.userColors[user.id];
-        let intersection = new Set([...selectedColors].filter(c => userColors.has(c)));
-        
-        // Filter out default colors if checkbox is not checked
-        if (!showDefaultColorsSharing) {
-            intersection = new Set([...intersection].filter(c => !DEFAULT_COLORS.includes(c)));
-        }
-        
-        const inCommon = intersection.size;
-        
-        // Calculate colors NOT in common
-        const notInCommon = (selectedColors.size - inCommon) + (userColors.size - inCommon);
-
-        comparisons.push({
-            user: user,
-            inCommon: inCommon,
-            notInCommon: notInCommon,
-            sharedColors: Array.from(intersection)
-        });
-    });
-
-    // Sort based on mode
-    if (mode === 'most') {
-        comparisons.sort((a, b) => b.inCommon - a.inCommon);
-    } else {
-        comparisons.sort((a, b) => b.notInCommon - a.notInCommon);
-    }
-
-    // Display top 20
-    let html = '';
-    comparisons.slice(0, 20).forEach(comp => {
-        const metric = mode === 'most' ? comp.inCommon : comp.notInCommon;
-        const metricLabel = mode === 'most' ? 'colors in common' : 'colors NOT in common';
-        
-        html += `
-            <div class="comparison-result">
-                <div class="result-header">
-                    <div class="user-name" data-user-id="${comp.user.id}">${formatUsername(comp.user)}</div>
-                    ${mode === 'most' && comp.sharedColors.length > 0 ? `
-                        <button class="copy-btn" data-colors="${comp.sharedColors.join(',')}" title="Copy shared colors">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M13.5 5.5h-8A1.5 1.5 0 0 0 4 7v8a1.5 1.5 0 0 0 1.5 1.5h8A1.5 1.5 0 0 0 15 15V7a1.5 1.5 0 0 0-1.5-1.5z" stroke="currentColor" stroke-width="1.5"/>
-                                <path d="M3 10.5H2.5A1.5 1.5 0 0 1 1 9V1.5A1.5 1.5 0 0 1 2.5 0h8A1.5 1.5 0 0 1 12 1.5V2" stroke="currentColor" stroke-width="1.5"/>
-                            </svg>
-                        </button>
+            html += `
+                <div class="comparison-result">
+                    <div class="result-header">
+                        <div class="user-name" data-user-id="${comp.user.id}">${formatUsername(comp.user)}</div>
+                        ${partnerComparisonMode === 'most' && comp.sharedColors.length > 0 ? `
+                            <button class="copy-btn" data-colors="${comp.sharedColors.join(',')}" title="Copy shared colors">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M13.5 5.5h-8A1.5 1.5 0 0 0 4 7v8a1.5 1.5 0 0 0 1.5 1.5h8A1.5 1.5 0 0 0 15 15V7a1.5 1.5 0 0 0-1.5-1.5z" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M3 10.5H2.5A1.5 1.5 0 0 1 1 9V1.5A1.5 1.5 0 0 1 2.5 0h8A1.5 1.5 0 0 1 12 1.5V2" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div class="stats">
+                        <strong>${metric}</strong> ${metricLabel}
+                    </div>
+                    ${partnerComparisonMode === 'most' && comp.sharedColors.length > 0 ? `
+                        <div class="color-samples" id="colors-${comp.user.id}">
+                            ${comp.sharedColors.slice(0, 10).map(color =>
+                                `<div class="color-sample" style="background-color: ${decimalToHex(color)};" title="${decimalToHex(color)}"></div>`
+                            ).join('')}
+                        </div>
+                        ${comp.sharedColors.length > 10 ? `<span class="show-more" style="cursor: pointer; color: #5865f2; font-size: 0.9em;" data-user-id="${comp.user.id}" data-colors="${comp.sharedColors.map(c => decimalToHex(c)).join(',')}">
+                            +${comp.sharedColors.length - 10} more</span>` : ''}
                     ` : ''}
                 </div>
-                <div class="stats">
-                    <strong>${metric}</strong> ${metricLabel}
-                </div>
-                ${mode === 'most' && comp.sharedColors.length > 0 ? `
-                    <div class="color-samples" id="colors-${comp.user.id}">
-                        ${comp.sharedColors.slice(0, 10).map(color => 
-                            `<div class="color-sample" style="background-color: ${decimalToHex(color)};" title="${decimalToHex(color)}"></div>`
-                        ).join('')}
-                    </div>
-                    ${comp.sharedColors.length > 10 ? `<span class="show-more" style="cursor: pointer; color: #5865f2; font-size: 0.9em;" data-user-id="${comp.user.id}" data-colors="${comp.sharedColors.map(c => decimalToHex(c)).join(',')}">+${comp.sharedColors.length - 10} more</span>` : ''}
-                ` : ''}
-            </div>
-        `;
-    });
+            `;
+        });
+    }
 
-    results.innerHTML = html;
-    
-    // Add click handlers for copy buttons
-    document.querySelectorAll('.copy-btn').forEach(btn => {
+    container.innerHTML = html;
+
+    // Copy button handlers
+    container.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const colors = this.getAttribute('data-colors').split(',');
@@ -607,29 +549,27 @@ function showColorSharing(userId, mode) {
             copyToClipboard(hexColors, `Copied ${colors.length} colors!`);
         });
     });
-    
-    // Add click handlers for show-more/show-less
-    document.querySelectorAll('.show-more').forEach(span => {
+
+    // Show-more/show-less handlers
+    container.querySelectorAll('.show-more').forEach(span => {
         span.addEventListener('click', function() {
-            const userId = this.getAttribute('data-user-id');
+            const uid = this.getAttribute('data-user-id');
             const hexValues = this.getAttribute('data-colors');
-            const container = document.getElementById(`colors-${userId}`);
-            
-            if (container.classList.contains('expanded')) {
-                // Collapse
+            const colorContainer = document.getElementById(`colors-${uid}`);
+
+            if (colorContainer.classList.contains('expanded')) {
                 const colors = hexValues.split(',').slice(0, 10);
-                container.innerHTML = colors.map(hex =>
+                colorContainer.innerHTML = colors.map(hex =>
                     `<div class="color-sample" style="background-color: ${hex};" title="${hex}"></div>`
                 ).join('');
-                container.classList.remove('expanded');
+                colorContainer.classList.remove('expanded');
                 this.textContent = `+${hexValues.split(',').length - 10} more`;
             } else {
-                // Expand
                 const colors = hexValues.split(',');
-                container.innerHTML = colors.map(hex =>
+                colorContainer.innerHTML = colors.map(hex =>
                     `<div class="color-sample" style="background-color: ${hex};" title="${hex}"></div>`
                 ).join('');
-                container.classList.add('expanded');
+                colorContainer.classList.add('expanded');
                 this.textContent = 'Show less';
             }
         });
