@@ -82,6 +82,7 @@ function initializeApp() {
     setupTabSwitching();
     setupUserModal();
     initTop500();
+    initMyPartner();
     initColorSharing();
     initRankings();
 }
@@ -364,6 +365,111 @@ function renderUserGrid() {
             copyToClipboard(hex, `Copied ${hex}`);
         });
     });
+}
+
+// MY PARTNER TAB
+let partnerShowDefault = false;
+
+function initMyPartner() {
+    const userSelect = document.getElementById('partnerUserSelect');
+    const showDefaultCheckbox = document.getElementById('partnerShowDefault');
+
+    // Populate dropdown alphabetically
+    const sorted = [...processedData.users].sort((a, b) =>
+        formatUsername(a).toLowerCase().localeCompare(formatUsername(b).toLowerCase())
+    );
+    sorted.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = formatUsername(user);
+        userSelect.appendChild(option);
+    });
+
+    userSelect.addEventListener('change', (e) => {
+        if (e.target.value) showPartnerResults(parseInt(e.target.value));
+    });
+
+    showDefaultCheckbox.addEventListener('change', () => {
+        partnerShowDefault = showDefaultCheckbox.checked;
+        if (userSelect.value) showPartnerResults(parseInt(userSelect.value));
+    });
+}
+
+function showPartnerResults(userId) {
+    const container = document.getElementById('partnerResults');
+    const me = processedData.users.find(u => u.id === userId);
+    if (!me) return;
+
+    const myColors = processedData.userColors[userId];
+
+    // Find the partner (user who co-owns the most colors with me, excluding defaults if needed)
+    let bestPartner = null;
+    let bestCount = -1;
+    let bestShared = [];
+
+    processedData.users.forEach(other => {
+        if (other.id === userId) return;
+        const otherColors = processedData.userColors[other.id];
+        let shared = [...myColors].filter(c => otherColors.has(c));
+        if (!partnerShowDefault) {
+            shared = shared.filter(c => !DEFAULT_COLORS.includes(c));
+        }
+        if (shared.length > bestCount) {
+            bestCount = shared.length;
+            bestPartner = other;
+            bestShared = shared;
+        }
+    });
+
+    if (!bestPartner) {
+        container.innerHTML = '<p style="color:#8e9297;">No partner found.</p>';
+        return;
+    }
+
+    const partnerColors = processedData.userColors[bestPartner.id];
+
+    // Colors only I own
+    let onlyMine = [...myColors].filter(c => !partnerColors.has(c));
+    // Colors only partner owns
+    let onlyTheirs = [...partnerColors].filter(c => !myColors.has(c));
+
+    if (!partnerShowDefault) {
+        onlyMine = onlyMine.filter(c => !DEFAULT_COLORS.includes(c));
+        onlyTheirs = onlyTheirs.filter(c => !DEFAULT_COLORS.includes(c));
+    }
+
+    function renderColorGrid(colors) {
+        if (colors.length === 0) return '<p style="color:#8e9297; margin-top:10px;">None</p>';
+        return `<div class="color-samples" style="margin-top:10px;">
+            ${colors.map(c =>
+                `<div class="color-sample" style="background-color:${decimalToHex(c)};" title="${decimalToHex(c)}"></div>`
+            ).join('')}
+        </div>`;
+    }
+
+    container.innerHTML = `
+        <div class="partner-hero">
+            <div class="partner-label">Your #1 Partner</div>
+            <div class="partner-name user-name" data-user-id="${bestPartner.id}">${formatUsername(bestPartner)}</div>
+            <div class="partner-stat"><strong>${bestShared.length}</strong> colors co-owned</div>
+        </div>
+
+        <div class="partner-section">
+            <h3>Co-Owned Colors (${bestShared.length})</h3>
+            ${renderColorGrid(bestShared)}
+        </div>
+
+        <div class="partner-columns">
+            <div class="partner-section">
+                <h3>Only ${formatUsername(me)} (${onlyMine.length})</h3>
+                ${renderColorGrid(onlyMine)}
+            </div>
+            <div class="partner-section">
+                <h3>Only ${formatUsername(bestPartner)} (${onlyTheirs.length})</h3>
+                ${renderColorGrid(onlyTheirs)}
+            </div>
+        </div>
+    `;
 }
 
 // COLOR SHARING TAB

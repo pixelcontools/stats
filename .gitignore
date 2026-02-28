@@ -5,3 +5,4 @@ node_modules/
 dist/
 .playwright*/
 optimize_json.py
+scripts/users.json
