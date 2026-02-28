@@ -398,6 +398,13 @@ main {
     gap: 20px;
 }
 
+.runner-ups-heading {
+    color: #5865f2;
+    margin: 30px 0 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #5865f2;
+}
+
 @media (max-width: 768px) {
     .partner-columns {
         grid-template-columns: 1fr;

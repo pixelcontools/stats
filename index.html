@@ -15,8 +15,7 @@
 
         <nav class="tabs">
             <button class="tab-btn active" data-tab="top500">Top 500</button>
-            <button class="tab-btn" data-tab="partner">My Partner</button>
-            <button class="tab-btn" data-tab="sharing">Color Sharing</button>
+            <button class="tab-btn" data-tab="partners">My Top Partners</button>
             <button class="tab-btn" data-tab="rankings">Rankings</button>
         </nav>
 
@@ -47,25 +46,11 @@
                 </div>
             </div>
 
-            <!-- My Partner Tab -->
-            <div id="partner" class="tab-content">
+            <!-- My Top Partners Tab -->
+            <div id="partners" class="tab-content">
                 <div class="controls">
                     <label for="partnerUserSelect">Select Your Name:</label>
                     <select id="partnerUserSelect">
-                        <option value="">-- Choose a user --</option>
-                    </select>
-                    <label style="margin-left: 20px;">
-                        <input type="checkbox" id="partnerShowDefault"> Show default colors
-                    </label>
-                </div>
-                <div id="partnerResults"></div>
-            </div>
-
-            <!-- Color Sharing Tab -->
-            <div id="sharing" class="tab-content">
-                <div class="controls">
-                    <label for="userSelect">Select User:</label>
-                    <select id="userSelect">
                         <option value="">-- Choose a user --</option>
                     </select>
                     <div class="comparison-toggle">
@@ -73,10 +58,10 @@
                         <button id="leastCommonBtn" class="toggle-btn">Least Colors in Common</button>
                     </div>
                     <label style="margin-left: 20px;">
-                        <input type="checkbox" id="showDefaultColorsSharing"> Show default colors
+                        <input type="checkbox" id="partnerShowDefault"> Show default colors
                     </label>
                 </div>
-                <div id="sharingResults"></div>
+                <div id="partnerResults"></div>
             </div>
 
             <!-- Rankings Tab -->
