@@ -26,11 +26,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Copy User Data
+      - name: Copy Source Files
         run: |
-          # Copy userdata.json from root to docs folder
           cp userdata.json docs/userdata.json
-          echo "User data successfully copied to docs folder"
+          cp index.html docs/index.html
+          cp styles.css docs/styles.css
+          cp app.js docs/app.js
+          echo "Source files successfully copied to docs folder"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

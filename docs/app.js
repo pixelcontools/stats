@@ -36,11 +36,26 @@ function copyToClipboard(text, message = 'Copied to clipboard!') {
 // Load and process data
 async function loadData() {
     try {
-        // In production, data will be injected here
-        // For now, load from userdata.json
         const response = await fetch('userdata.json');
-        fullUserData = await response.json();
-        
+        const raw = await response.json();
+
+        // Support both legacy array format and new {lastUpdated, members} format
+        if (Array.isArray(raw)) {
+            fullUserData = raw;
+        } else {
+            fullUserData = raw.members || [];
+            if (raw.lastUpdated) {
+                const el = document.getElementById('last-updated');
+                if (el) {
+                    const d = new Date(raw.lastUpdated);
+                    el.textContent = 'Data as of '
+                        + d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                        + ' · '
+                        + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                }
+            }
+        }
+
         processData();
         initializeApp();
     } catch (error) {
@@ -236,16 +251,16 @@ function renderColorChart() {
             datasets: [{
                 label: 'Number of Owners',
                 data: data,
-                borderColor: '#5865f2',
-                backgroundColor: 'rgba(88, 101, 242, 0.1)',
-                borderWidth: 3,
+                borderColor: '#60a5fa',
+                backgroundColor: 'rgba(96, 165, 250, 0.08)',
+                borderWidth: 2,
                 pointRadius: 3,
                 pointHoverRadius: 6,
-                pointBackgroundColor: '#5865f2',
-                pointBorderColor: '#ffffff',
+                pointBackgroundColor: '#60a5fa',
+                pointBorderColor: '#1e2127',
                 pointBorderWidth: 2,
-                pointHoverBackgroundColor: '#ffffff',
-                pointHoverBorderColor: '#5865f2',
+                pointHoverBackgroundColor: '#93c5fd',
+                pointHoverBorderColor: '#1e2127',
                 pointHoverBorderWidth: 2,
                 tension: 0.4
             }]
@@ -257,14 +272,14 @@ function renderColorChart() {
                 legend: {
                     display: true,
                     labels: {
-                        color: '#dcddde'
+                        color: '#9ca3af'
                     }
                 },
                 tooltip: {
-                    backgroundColor: '#202225',
-                    titleColor: '#dcddde',
-                    bodyColor: '#dcddde',
-                    borderColor: '#5865f2',
+                    backgroundColor: '#1e2127',
+                    titleColor: '#e2e5e8',
+                    bodyColor: '#9ca3af',
+                    borderColor: '#44474d',
                     borderWidth: 1,
                     callbacks: {
                         title: function(context) {
@@ -282,10 +297,10 @@ function renderColorChart() {
                 },
                 y: {
                     grid: {
-                        color: '#1a1b1e'
+                        color: '#33363c'
                     },
                     ticks: {
-                        color: '#b9bbbe'
+                        color: '#9ca3af'
                     },
                     beginAtZero: true,
                     title: {
@@ -448,7 +463,7 @@ function showTopPartners(userId) {
     const best = mostSorted[0];
 
     if (!best) {
-        container.innerHTML = '<p style="color:#8e9297;">No partner found.</p>';
+        container.innerHTML = '<p class="empty-state">No partner found.</p>';
         return;
     }
 
@@ -463,7 +478,7 @@ function showTopPartners(userId) {
     }
 
     function renderColorGrid(colors) {
-        if (colors.length === 0) return '<p style="color:#8e9297; margin-top:10px;">None</p>';
+        if (colors.length === 0) return '<p class="empty-state">None</p>';
         return `<div class="color-samples" style="margin-top:10px;">
             ${colors.map(c =>
                 `<div class="color-sample" style="background-color:${decimalToHex(c)};" title="${decimalToHex(c)}"></div>`

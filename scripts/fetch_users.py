@@ -5,15 +5,21 @@ Fetches all users (IDs 1–13000), filters for PIXELCONS guild members,
 and writes the compact userdata.json used by the site.
 
 Usage:
-    python scripts/fetch_users.py
+    python scripts/fetch_users.py            # fetch + filter only
+    python scripts/fetch_users.py --save-raw # also save raw dump to scripts/users.json
+
+The raw dump (scripts/users.json) is gitignored. Use it with update_data.py to
+reprocess PIXELCONS membership without re-fetching from the API.
 
 Requires: requests  (pip install requests)
 """
+import argparse
 import re
 import requests
 import json
 import time
 import concurrent.futures
+from datetime import datetime, timezone
 from typing import Optional, Dict
 
 API_URL = "https://geopixels.net/GetUserProfile"
@@ -57,6 +63,14 @@ def to_compact(user: Dict) -> Dict:
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--save-raw",
+        action="store_true",
+        help="Save the full raw API dump to scripts/users.json before filtering",
+    )
+    args = parser.parse_args()
+
     all_users = []
     start_time = time.time()
 
@@ -85,14 +99,25 @@ def main():
         if batch_end < TOTAL_USERS:
             time.sleep(PAUSE_SECONDS)
 
+    # Optionally save the full raw dump before filtering
+    if args.save_raw:
+        raw_output = "scripts/users.json"
+        with open(raw_output, "w", encoding="utf-8") as f:
+            json.dump(all_users, f, ensure_ascii=False)
+        print(f"Raw dump saved to {raw_output} ({len(all_users)} users)")
+
     # Filter to PIXELCONS members only
     pixelcons = [u for u in all_users if is_pixelcons_member(u)]
     compact = [to_compact(u) for u in pixelcons]
 
     # Write userdata.json at repo root (deploy workflow copies it to docs/)
     output = "userdata.json"
+    output_data = {
+        "lastUpdated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "members": compact,
+    }
     with open(output, "w", encoding="utf-8") as f:
-        json.dump(compact, f, ensure_ascii=False)
+        json.dump(output_data, f, ensure_ascii=False)
 
     total_time = time.time() - start_time
     print("-" * 60)

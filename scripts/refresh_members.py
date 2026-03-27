@@ -18,6 +18,7 @@ import json
 import requests
 import concurrent.futures
 import time
+from datetime import datetime, timezone
 from typing import Optional, Dict
 
 API_URL = "https://geopixels.net/GetUserProfile"
@@ -90,8 +91,12 @@ def main():
         if batch_start + BATCH_SIZE < len(member_ids):
             time.sleep(PAUSE_SECONDS)
 
+    output_data = {
+        "lastUpdated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "members": updated,
+    }
     with open("userdata.json", "w", encoding="utf-8") as f:
-        json.dump(updated, f, ensure_ascii=False)
+        json.dump(output_data, f, ensure_ascii=False)
 
     total_time = time.time() - start_time
     print("-" * 60)
