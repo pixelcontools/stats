@@ -1,20 +1,22 @@
 """
-Transform an existing users.json (raw API dump) into the compact
-userdata.json consumed by the stats site.
+Transform a raw API dump (users.json) into the compact userdata.json
+consumed by the stats site.
 
-Useful when you already have a users.json from the geopixels-scratch repo
-and just want to refresh the stats site data without re-fetching from the API.
+Useful when you already have a raw dump and want to reprocess PIXELCONS
+membership without re-fetching from the API.
 
-Usage:
-    python scripts/update_data.py <path-to-users.json>
+Generate the raw dump first with:
+    python scripts/fetch_users.py --save-raw
 
-Example:
-    python scripts/update_data.py ../geopixels-scratch/data/userdata/users.json
+Then run this script (defaults to scripts/users.json):
+    python scripts/update_data.py
+    python scripts/update_data.py <path-to-users.json>   # custom path
 """
 import json
 import re
 import sys
 import os
+from datetime import datetime, timezone
 
 
 def is_pixelcons_member(user: dict) -> bool:
@@ -38,14 +40,16 @@ def to_compact(user: dict) -> dict:
     }
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python scripts/update_data.py <path-to-users.json>")
-        sys.exit(1)
+DEFAULT_RAW = "scripts/users.json"
 
-    input_path = sys.argv[1]
+
+def main():
+    input_path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_RAW
+
     if not os.path.exists(input_path):
         print(f"Error: {input_path} not found")
+        if input_path == DEFAULT_RAW:
+            print("Run 'python scripts/fetch_users.py --save-raw' to generate it.")
         sys.exit(1)
 
     with open(input_path, "r", encoding="utf-8") as f:
@@ -55,8 +59,12 @@ def main():
     compact = [to_compact(u) for u in pixelcons]
 
     output = "userdata.json"
+    output_data = {
+        "lastUpdated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "members": compact,
+    }
     with open(output, "w", encoding="utf-8") as f:
-        json.dump(compact, f, ensure_ascii=False)
+        json.dump(output_data, f, ensure_ascii=False)
 
     print(f"Total users in source: {len(users)}")
     print(f"PIXELCONS members:     {len(pixelcons)}")

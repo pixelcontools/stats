@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixelcon Stats</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>💛 Pixelcon Stats 💙</h1>
+            <div id="last-updated" class="last-updated"></div>
         </header>
 
         <nav class="tabs">
@@ -28,8 +29,8 @@
                 </div>
                 <div id="graphView" class="view">
                     <canvas id="colorChart"></canvas>
-                    <div style="margin-top: 20px;">
-                        <p style="color: #b0b0b0; margin-bottom: 10px;">Hex values (comma-separated):</p>
+                    <div class="hex-section">
+                        <p class="hex-textarea-label">Hex values (comma-separated):</p>
                         <textarea class="hex-textarea" id="hexTextarea" readonly></textarea>
                     </div>
                 </div>
@@ -119,6 +120,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>
