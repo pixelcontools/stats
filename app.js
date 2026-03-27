@@ -101,21 +101,35 @@ function initializeApp() {
     initRankings();
 }
 
-// Tab switching
-function setupTabSwitching() {
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
+// Tab switching with hash routing
+const VALID_TABS = ['top500', 'partners', 'rankings'];
+const DEFAULT_TAB = 'rankings';
 
-    tabBtns.forEach(btn => {
+function activateTab(tabId) {
+    if (!VALID_TABS.includes(tabId)) tabId = DEFAULT_TAB;
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tabId);
+    });
+    document.querySelectorAll('.tab-content').forEach(c => {
+        c.classList.toggle('active', c.id === tabId);
+    });
+}
+
+function setupTabSwitching() {
+    // Activate tab from current hash, defaulting to rankings
+    const initial = (location.hash.slice(1) || DEFAULT_TAB);
+    activateTab(initial);
+
+    // Click → update hash (hashchange handler does the actual switch)
+    document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const tabId = btn.dataset.tab;
-            
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            
-            btn.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+            location.hash = btn.dataset.tab;
         });
+    });
+
+    // Back/forward and direct hash navigation
+    window.addEventListener('hashchange', () => {
+        activateTab(location.hash.slice(1) || DEFAULT_TAB);
     });
 }
 

@@ -6,6 +6,7 @@
     <title>Pixelcon Stats</title>
     <link rel="stylesheet" href="styles.css?v=2">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>/* Redirect bare hash-less URL to #rankings */if(!location.hash)history.replaceState(null,'','#rankings');</script>
 </head>
 <body>
     <div class="container">
@@ -15,14 +16,14 @@
         </header>
 
         <nav class="tabs">
-            <button class="tab-btn active" data-tab="top500">Top 500</button>
+            <button class="tab-btn" data-tab="top500">Top 500</button>
             <button class="tab-btn" data-tab="partners">My Top Partners</button>
             <button class="tab-btn" data-tab="rankings">Rankings</button>
         </nav>
 
         <main>
             <!-- Top 500 Tab -->
-            <div id="top500" class="tab-content active">
+            <div id="top500" class="tab-content">
                 <div class="view-toggle">
                     <button id="graphViewBtn" class="toggle-btn active">Graph View</button>
                     <button id="userViewBtn" class="toggle-btn">User View</button>
@@ -120,6 +121,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>
