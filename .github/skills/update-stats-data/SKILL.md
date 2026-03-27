@@ -1,0 +1,83 @@
+---
+name: update-stats-data
+description: "Use when the user says 'Update the data for this application' or 'refresh the stats data' or 'fetch fresh color ownership data'. Fetches fresh Pixelcon color ownership data from the GeoPixels API, starts a local server, validates the app works correctly in a browser via Playwright MCP, then provides ready-to-run git commands for deployment. Do NOT push automatically — always present the commands for the user to run."
+argument-hint: "Optional: absolute path to an existing raw users.json to skip API fetch"
+---
+
+# Update Stats Data
+
+## What This Skill Does
+
+Refreshes the Pixelcon color ownership data, validates the running app in a real browser, and gives you copy-paste git commands to publish the update.
+
+## Procedure
+
+Follow every step in order. Do not skip steps.
+
+### Step 1 — Fetch Fresh Data
+
+**Do not use `update_data.py` with the existing `userdata.json`** — that file is already compact format and has no `guildTag` field, so it will produce an empty output and corrupt the data. Only two safe options exist:
+
+**Option A — Full API fetch (default, ~26 minutes):**
+Inform the user before starting that this will take about 26 minutes.
+
+```powershell
+cd c:\<repo-root>
+python scripts/fetch_users.py
+```
+
+After the script finishes, confirm `userdata.json` was written at the repo root and report the PIXELCONS member count from the script output.
+
+**Option B — Fast path (only if the user provides a raw `users.json` dump):**
+Only use this if the user explicitly provides a path to a raw API dump (a JSON array of full user objects with `guildTag` fields — NOT `userdata.json`).
+
+```powershell
+python scripts/update_data.py <absolute-path-to-raw-users.json>
+```
+
+### Step 2 — Start Local Server
+
+Start Python's HTTP server as a background process using `Start-Job` so it does not block the terminal:
+
+```powershell
+$job = Start-Job -ScriptBlock { Set-Location 'c:\<repo-root>'; python -m http.server 8000 }
+Start-Sleep -Seconds 2
+(Test-NetConnection -ComputerName localhost -Port 8000 -WarningAction SilentlyContinue).TcpTestSucceeded
+```
+
+If `TcpTestSucceeded` is `True`, proceed. If `False`, wait another 2 seconds and retry once.
+
+### Step 3 — Validate with Playwright MCP
+
+1. Navigate to `http://localhost:8000` using `mcp_microsoft_pla_browser_navigate`
+2. Take a screenshot with `mcp_microsoft_pla_browser_take_screenshot` — save to `.playwright-mcp/update-data-validation.png`
+3. Get a snapshot with `mcp_microsoft_pla_browser_snapshot` and verify:
+   - Page title is **"Pixelcon Stats"**
+   - The nav tabs **Top 500 / My Top Partners / Rankings** are all present
+   - A color chart or user grid is rendered (canvas element or color entries are visible)
+   - No `div.error` element exists in the DOM
+4. Call `mcp_microsoft_pla_browser_console_messages` with `level: "error"` — the only acceptable error is a `favicon.ico` 404
+5. Report **PASS** or **FAIL** with a one-line summary
+
+### Step 4 — Stop Local Server
+
+After validation, stop the background job and free port 8000. Use the job variable from Step 2:
+
+```powershell
+Stop-Job $job -ErrorAction SilentlyContinue
+Remove-Job $job -ErrorAction SilentlyContinue
+Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
+```
+
+### Step 5 — Provide Git Commands
+
+**Do NOT run these yourself.** Present them to the user as a ready-to-copy block and explain what each does:
+
+```bash
+cd c:\<repo-root>
+git add userdata.json
+git commit -m "chore: refresh color ownership data"
+git push origin main
+```
+
+Explain: pushing to `main` triggers the GitHub Actions deploy workflow (`.github/workflows/deploy.yml`) which automatically copies `userdata.json` into `docs/` and redeploys the GitHub Pages site.
