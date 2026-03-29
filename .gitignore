@@ -6,3 +6,4 @@ dist/
 .playwright*/
 optimize_json.py
 scripts/users.json
+userdata.json

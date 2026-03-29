@@ -1,9 +1,9 @@
 """
 Refresh color ownership data for known PIXELCONS members.
 
-Reads the existing userdata.json to get the list of known member IDs,
+Reads the existing userdata_pixelcons.json to get the list of known member IDs,
 re-fetches each profile from the GeoPixels API, and writes an updated
-userdata.json with the latest colors and level for each member.
+userdata_pixelcons.json with the latest colors and level for each member.
 
 This is much faster than fetch_users.py (104 requests vs 13,000).
 Use this for routine data refreshes. Use fetch_users.py only when you
@@ -40,17 +40,17 @@ def fetch_user(user_id: int) -> Optional[Dict]:
 
 
 def main():
-    with open("userdata.json", "r", encoding="utf-8") as f:
+    with open("userdata_pixelcons.json", "r", encoding="utf-8") as f:
         existing = json.load(f)
 
     if not existing:
-        print("Error: userdata.json is empty or invalid.")
+        print("Error: userdata_pixelcons.json is empty or invalid.")
         return
 
     # Validate this is compact format (has 'i' key, not raw API format)
     if "id" in existing[0]:
-        print("Error: userdata.json appears to be raw API format, not compact format.")
-        print("This script expects the compact userdata.json produced by this repo.")
+        print("Error: userdata_pixelcons.json appears to be raw API format, not compact format.")
+        print("This script expects the compact userdata_pixelcons.json produced by this repo.")
         return
 
     member_ids = [u["i"] for u in existing]
@@ -95,7 +95,7 @@ def main():
         "lastUpdated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "members": updated,
     }
-    with open("userdata.json", "w", encoding="utf-8") as f:
+    with open("userdata_pixelcons.json", "w", encoding="utf-8") as f:
         json.dump(output_data, f, ensure_ascii=False)
 
     total_time = time.time() - start_time
@@ -104,7 +104,7 @@ def main():
     print(f"Members refreshed: {len(updated) - len(failed)}/{len(member_ids)}")
     if failed:
         print(f"Failed (kept old data): {failed}")
-    print(f"Wrote userdata.json")
+    print(f"Wrote userdata_pixelcons.json")
 
 
 if __name__ == "__main__":

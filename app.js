@@ -36,7 +36,7 @@ function copyToClipboard(text, message = 'Copied to clipboard!') {
 // Load and process data
 async function loadData() {
     try {
-        const response = await fetch('userdata.json');
+        const response = await fetch('userdata_pixelcons.json');
         const raw = await response.json();
 
         // Support both legacy array format and new {lastUpdated, members} format

@@ -28,7 +28,7 @@ jobs:
 
       - name: Copy Source Files
         run: |
-          cp userdata.json docs/userdata.json
+          cp userdata_pixelcons.json docs/userdata_pixelcons.json
           cp index.html docs/index.html
           cp styles.css docs/styles.css
           cp app.js docs/app.js
