@@ -1,6 +1,6 @@
 ---
 name: refresh-member-colors
-description: "Use when the user says 'refresh member colors', 'update pixel ownership', 'refresh the stats data for known members', or 'Update the data for this application' when a fast refresh is needed. Re-fetches color ownership data ONLY for the 104 known PIXELCONS members already in userdata.json — takes ~5 seconds instead of 26 minutes. Does NOT discover new members. Starts local server, validates app in browser via Playwright MCP, then provides git commands. Does NOT push automatically."
+description: "Use when the user says 'refresh member colors', 'update pixel ownership', 'refresh the stats data for known members', or 'Update the data for this application' when a fast refresh is needed. Re-fetches color ownership data ONLY for the known PIXELCONS members already in userdata.json — takes ~5 seconds instead of 26 minutes. Does NOT discover new members. Starts local server, validates app in browser via Playwright MCP, then provides git commands. Does NOT push automatically."
 argument-hint: "No arguments needed"
 ---
 
@@ -8,7 +8,7 @@ argument-hint: "No arguments needed"
 
 ## What This Skill Does
 
-Refreshes pixel color ownership data for the **104 known PIXELCONS members** already in `userdata.json`. Skips the full 13k user sweep entirely — done in ~5 seconds. Use this for routine updates. Use `fetch_users.py` only when discovering newly joined members.
+Refreshes pixel color ownership data for the **known PIXELCONS members** already in `userdata_pixelcons.json`. Skips the full 13k user sweep entirely — done in ~5 seconds. Use this for routine updates. Use `fetch_users.py` only when discovering newly joined members.
 
 ## Endpoint
 
@@ -28,12 +28,12 @@ python scripts/refresh_members.py
 ```
 
 This will:
-- Read the 104 known member IDs from `userdata.json`
+- Read the known member IDs from `userdata_pixelcons.json`
 - Batch-fetch each profile from the API (20 concurrent, 1s pause between batches)
 - Preserve old data for any user whose fetch fails (no data loss)
-- Overwrite `userdata.json` with updated colors and levels
+- Overwrite `userdata_pixelcons.json` with updated colors and levels
 
-After it finishes, confirm the output shows `Members refreshed: 104/104` (or note any failures).
+After it finishes, confirm the output shows `Members refreshed: <number>/<number>` (or note any failures).
 
 ### Step 2 — Start Local Server
 
@@ -71,9 +71,9 @@ Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
 
 ```bash
 cd c:\<repo-root>
-git add userdata.json
+git add userdata_pixelcons.json
 git commit -m "chore: refresh member color ownership data"
 git push origin main
 ```
 
-Pushing to `main` triggers the GitHub Actions workflow (`.github/workflows/deploy.yml`) which copies `userdata.json` to `docs/` and redeploys GitHub Pages.
+Pushing to `main` triggers the GitHub Actions workflow (`.github/workflows/deploy.yml`) which copies `userdata_pixelcons.json` to `docs/` and redeploys GitHub Pages.

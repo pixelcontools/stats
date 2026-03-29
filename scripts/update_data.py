@@ -1,5 +1,5 @@
 """
-Transform a raw API dump (users.json) into the compact userdata.json
+Transform a raw API dump (users.json) into the compact userdata_pixelcons.json
 consumed by the stats site.
 
 Useful when you already have a raw dump and want to reprocess PIXELCONS
@@ -58,7 +58,7 @@ def main():
     pixelcons = [u for u in users if is_pixelcons_member(u)]
     compact = [to_compact(u) for u in pixelcons]
 
-    output = "userdata.json"
+    output = "userdata_pixelcons.json"
     output_data = {
         "lastUpdated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "members": compact,

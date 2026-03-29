@@ -1,8 +1,8 @@
 """
-Fetch user profiles from GeoPixels API and produce userdata.json for the stats site.
+Fetch user profiles from GeoPixels API and produce userdata_pixelcons.json for the stats site.
 
 Fetches all users (IDs 1–13000), filters for PIXELCONS guild members,
-and writes the compact userdata.json used by the site.
+and writes the compact userdata_pixelcons.json used by the site.
 
 Usage:
     python scripts/fetch_users.py            # fetch + filter only
@@ -110,8 +110,8 @@ def main():
     pixelcons = [u for u in all_users if is_pixelcons_member(u)]
     compact = [to_compact(u) for u in pixelcons]
 
-    # Write userdata.json at repo root (deploy workflow copies it to docs/)
-    output = "userdata.json"
+    # Write userdata_pixelcons.json at repo root (deploy workflow copies it to docs/)
+    output = "userdata_pixelcons.json"
     output_data = {
         "lastUpdated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "members": compact,
@@ -123,7 +123,7 @@ def main():
     print("-" * 60)
     print(f"Total users fetched: {len(all_users)}")
     print(f"PIXELCONS members:   {len(pixelcons)}")
-    print(f"Wrote {output}")
+    print(f"Wrote {output} (PIXELCONS members only — {len(compact)} users)")
     print(f"Total time: {total_time:.1f}s ({total_time / 60:.1f} minutes)")
 
 
