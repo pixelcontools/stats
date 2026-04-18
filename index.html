@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixelcon Stats</title>
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=3">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>/* Redirect bare hash-less URL to #rankings */if(!location.hash)history.replaceState(null,'','#rankings');</script>
 </head>
@@ -29,7 +29,18 @@
                     <button id="userViewBtn" class="toggle-btn">User View</button>
                 </div>
                 <div id="graphView" class="view">
+                    <div class="sort-controls chart-sort-controls">
+                        <label>Sort by:</label>
+                        <button id="sortChartPopularityBtn" class="toggle-btn active">Popularity</button>
+                        <button id="sortChartHueBtn" class="toggle-btn">Hue</button>
+                        <button id="sortChartSaturationBtn" class="toggle-btn">Saturation</button>
+                        <button id="sortChartBrightnessBtn" class="toggle-btn">Brightness</button>
+                        <label style="margin-left: 12px;">
+                            <input type="checkbox" id="hideChartDefaults"> Hide default colors
+                        </label>
+                    </div>
                     <canvas id="colorChart"></canvas>
+                    <div id="colorStrip" class="color-strip" title="Top 500 colors — left to right: most → least owned"></div>
                     <div class="hex-section">
                         <p class="hex-textarea-label">Hex values (comma-separated):</p>
                         <textarea class="hex-textarea" id="hexTextarea" readonly></textarea>

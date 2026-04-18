@@ -13,6 +13,25 @@ function decimalToHex(decimal) {
     return '#' + parseInt(decimal).toString(16).padStart(6, '0').toUpperCase();
 }
 
+// Utility: Parse hex color (#RRGGBB) to { h, s, l } (h: 0-360, s/l: 0-100)
+function hexToHsl(hex) {
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const l = (max + min) / 2;
+    if (max === min) return { h: 0, s: 0, l: l * 100 };
+    const d = max - min;
+    const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    let h;
+    switch (max) {
+        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+        case g: h = ((b - r) / d + 2) / 6; break;
+        default: h = ((r - g) / d + 4) / 6;
+    }
+    return { h: h * 360, s: s * 100, l: l * 100 };
+}
+
 // Utility: Format username
 function formatUsername(user) {
     const name = user.name || '';
@@ -180,6 +199,8 @@ function showUserModal(userId) {
 // TOP 500 TAB
 let colorChart = null;
 let currentSort = 'colors'; // 'colors' or 'alpha'
+let chartSort = 'popularity'; // 'popularity' | 'hue' | 'saturation' | 'brightness'
+let hideChartDefaults = false; // hide GeoPixels default palette from graph
 let showDefaultColors = false; // By default, hide the colors everyone has
 
 // The first 29 colors that everyone has by default (from #FFFFFF to #000000)
@@ -189,6 +210,17 @@ const DEFAULT_COLORS = [
     '1671876', '10600833', '9095462', '10526880', '7029286', '5263440', '13619320', '1333882',
     '9116964', '12615546', '12884588', '5995292', '0'
 ];
+
+// GeoPixels default palette as decimal strings (used to filter the chart)
+// #FFFFFF #CDB4DB #F3BBC2 #A8D0DC #6D9DCD #1982C4 #A0A0A0 #6B4226 #C07F7A #C49A6C
+// #F4F59F #BD637D #CFD078 #4D194D #6A4C93 #505050 #A1C181 #FF85A1 #FF9F1C #8AC926
+// #5B7B1C #2EC4B6 #FFCA3A #FF595E #E71D36 #1A535C #145A7A #8B1D24 #000000
+const CHART_DEFAULT_COLORS = new Set([
+    '16777215','13481179','15973314','11063516','7183821','1671876','10526880','7029286',
+    '12615546','12884588','16053663','12411773','13619320','5052749','6966419','5263440',
+    '10600833','16745889','16752412','9095462','5995292','3065014','16763450','16734558',
+    '15146294','1725276','1333882','9116964','0'
+]);
 
 function initTop500() {
     const graphViewBtn = document.getElementById('graphViewBtn');
@@ -233,20 +265,70 @@ function initTop500() {
         renderUserGrid();
     });
 
+    const hideChartDefaultsCheckbox = document.getElementById('hideChartDefaults');
+    hideChartDefaultsCheckbox.addEventListener('change', () => {
+        hideChartDefaults = hideChartDefaultsCheckbox.checked;
+        renderColorChart();
+    });
+
+    // Chart sort buttons
+    const chartSortBtns = [
+        { id: 'sortChartPopularityBtn', mode: 'popularity' },
+        { id: 'sortChartHueBtn',        mode: 'hue' },
+        { id: 'sortChartSaturationBtn', mode: 'saturation' },
+        { id: 'sortChartBrightnessBtn', mode: 'brightness' }
+    ];
+    chartSortBtns.forEach(({ id, mode }) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            chartSort = mode;
+            chartSortBtns.forEach(b => document.getElementById(b.id)?.classList.remove('active'));
+            btn.classList.add('active');
+            renderColorChart();
+        });
+    });
+
     renderColorChart();
 }
 
 function renderColorChart() {
     const ctx = document.getElementById('colorChart').getContext('2d');
-    
-    // Get top 500 colors sorted by count
-    const sortedColors = Object.entries(processedData.colorCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 500);
+
+    // Always start with top 500 by popularity, optionally filtering defaults
+    let top500 = Object.entries(processedData.colorCounts)
+        .sort((a, b) => b[1] - a[1]);
+    if (hideChartDefaults) {
+        top500 = top500.filter(([color]) => !CHART_DEFAULT_COLORS.has(color));
+    }
+    top500 = top500.slice(0, 500);
+
+    // Re-sort the top-500 set based on chartSort
+    const sortedColors = [...top500].sort(([aColor, aCount], [bColor, bCount]) => {
+        if (chartSort === 'hue') {
+            const aH = hexToHsl(decimalToHex(aColor)).h;
+            const bH = hexToHsl(decimalToHex(bColor)).h;
+            return aH - bH;
+        }
+        if (chartSort === 'saturation') {
+            const aS = hexToHsl(decimalToHex(aColor)).s;
+            const bS = hexToHsl(decimalToHex(bColor)).s;
+            return bS - aS; // most saturated first
+        }
+        if (chartSort === 'brightness') {
+            const aL = hexToHsl(decimalToHex(aColor)).l;
+            const bL = hexToHsl(decimalToHex(bColor)).l;
+            return bL - aL; // brightest first
+        }
+        // default: popularity (already sorted)
+        return 0;
+    });
 
     const labels = sortedColors.map(([color]) => decimalToHex(color));
     const data = sortedColors.map(([, count]) => count);
-    const backgroundColors = sortedColors.map(([color]) => decimalToHex(color));
+    const hexColors = sortedColors.map(([color]) => decimalToHex(color));
+    // Each bar is painted its actual color; slightly transparent so dark colors stay visible
+    const backgroundColors = hexColors.map(hex => hex + 'dd');
 
     // Update textarea with hex values
     const hexTextarea = document.getElementById('hexTextarea');
@@ -254,40 +336,51 @@ function renderColorChart() {
         hexTextarea.value = labels.join(', ');
     }
 
+    // Render the color-strip palette preview below the chart
+    const colorStrip = document.getElementById('colorStrip');
+    if (colorStrip && hexColors.length) {
+        const stops = hexColors
+            .map((c, i) => `${c} ${(i / (hexColors.length - 1) * 100).toFixed(2)}%`)
+            .join(', ');
+        colorStrip.style.background = `linear-gradient(to right, ${stops})`;
+    }
+
     if (colorChart) {
         colorChart.destroy();
     }
 
     colorChart = new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Number of Owners',
+                label: 'Owners',
                 data: data,
-                borderColor: '#60a5fa',
-                backgroundColor: 'rgba(96, 165, 250, 0.08)',
-                borderWidth: 2,
-                pointRadius: 3,
-                pointHoverRadius: 6,
-                pointBackgroundColor: '#60a5fa',
-                pointBorderColor: '#1e2127',
-                pointBorderWidth: 2,
-                pointHoverBackgroundColor: '#93c5fd',
-                pointHoverBorderColor: '#1e2127',
-                pointHoverBorderWidth: 2,
-                tension: 0.4
+                backgroundColor: backgroundColors,
+                borderColor: hexColors,
+                borderWidth: 0,
+                borderRadius: 2,
+                borderSkipped: false
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: true,
+            animation: {
+                duration: 500,
+                easing: 'easeOutQuart'
+            },
             plugins: {
-                legend: {
+                legend: { display: false },
+                title: {
                     display: true,
-                    labels: {
-                        color: '#9ca3af'
-                    }
+                    text: (() => {
+                        const labels = { popularity: 'ranked by number of owners', hue: 'sorted by hue', saturation: 'sorted by saturation (most vivid first)', brightness: 'sorted by brightness (lightest first)' };
+                        return `Top 500 colors · ${labels[chartSort] || 'ranked by number of owners'}`;
+                    })(),
+                    color: '#6b7280',
+                    font: { size: 12, weight: 'normal' },
+                    padding: { top: 0, bottom: 14 }
                 },
                 tooltip: {
                     backgroundColor: '#1e2127',
@@ -295,31 +388,42 @@ function renderColorChart() {
                     bodyColor: '#9ca3af',
                     borderColor: '#44474d',
                     borderWidth: 1,
+                    padding: 10,
                     callbacks: {
                         title: function(context) {
-                            return 'Color: ' + context[0].label;
+                            const hex = context[0].label;
+                            const idx = context[0].dataIndex;
+                            const rankLabel = chartSort === 'popularity'
+                                ? `Rank #${idx + 1}  ·  ${hex}`
+                                : hex;
+                            return rankLabel;
                         },
                         label: function(context) {
-                            return 'Owners: ' + context.parsed.y;
+                            const n = context.parsed.y;
+                            return `  ${n} owner${n !== 1 ? 's' : ''}`;
+                        },
+                        labelColor: function(context) {
+                            const color = context.dataset.borderColor[context.dataIndex];
+                            return {
+                                borderColor: color,
+                                backgroundColor: color,
+                                borderRadius: 3
+                            };
                         }
                     }
                 }
             },
             scales: {
-                x: {
-                    display: false
-                },
+                x: { display: false },
                 y: {
-                    grid: {
-                        color: '#33363c'
-                    },
-                    ticks: {
-                        color: '#9ca3af'
-                    },
+                    grid: { color: '#33363c' },
+                    ticks: { color: '#9ca3af' },
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Number of Owners'
+                        text: 'Owners',
+                        color: '#6b7280',
+                        font: { size: 11 }
                     }
                 }
             }
