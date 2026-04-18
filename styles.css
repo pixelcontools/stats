@@ -1,23 +1,27 @@
 /* === DESIGN TOKENS === */
 :root {
-    --bg-app:        #282c34;
-    --bg-panel:      #36393f;
-    --bg-deep:       #1e2127;
-    --bg-hover:      #3a3f47;
-    --border:        #44474d;
-    --border-subtle: #33363c;
-    --text:          #e2e5e8;
-    --text-muted:    #9ca3af;
-    --text-dim:      #6b7280;
+    --bg-app:        #0f1117;
+    --bg-panel:      #181c24;
+    --bg-card:       #1e2330;
+    --bg-deep:       #0b0e14;
+    --bg-hover:      #252a35;
+    --border:        #2e3340;
+    --border-subtle: #232732;
+    --text:          #e8ecf2;
+    --text-muted:    #7e8a9e;
+    --text-dim:      #4a5368;
     --accent:        #60a5fa;
+    --accent-warm:   #f0874a;
     --accent-dim:    rgba(96, 165, 250, 0.12);
     --link:          #93c5fd;
     --success:       #4ade80;
     --danger:        #f87171;
-    --radius:        6px;
-    --radius-sm:     4px;
-    --shadow:        0 2px 8px rgba(0, 0, 0, 0.35);
-    --shadow-lg:     0 4px 24px rgba(0, 0, 0, 0.5);
+    --radius:        10px;
+    --radius-sm:     6px;
+    --radius-pill:   999px;
+    --shadow:        0 2px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg:     0 8px 40px rgba(0, 0, 0, 0.7);
+    --gutter:        clamp(20px, 5vw, 64px);
 }
 
 /* === RESET === */
@@ -32,6 +36,8 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     background: var(--bg-app);
+    background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(96, 165, 250, 0.06), transparent);
+    background-attachment: fixed;
     color: var(--text);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -42,11 +48,11 @@ body {
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-deep); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--bg-hover); }
+::-webkit-scrollbar-thumb:hover { background: #3a3f4e; }
 
 /* === LAYOUT === */
 .container {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
     min-height: 100vh;
     display: flex;
@@ -57,7 +63,7 @@ body {
 header {
     background: var(--bg-deep);
     border-bottom: 1px solid var(--border);
-    padding: 20px 30px 16px;
+    padding: 24px var(--gutter) 18px;
     position: relative;
     overflow: hidden;
 }
@@ -68,29 +74,36 @@ header::before {
     top: 0; left: 0; right: 0;
     height: 3px;
     background: linear-gradient(90deg,
-        rgba(213,45,0,1),
-        rgba(239,118,39,1),
-        rgba(255,255,255,0.9),
-        rgba(209,98,164,1),
-        rgba(25,130,196,1)
+        #d52d00, #ef7627, rgba(255,255,255,0.85), #d162a4, #1982c4
     );
 }
 
+/* Ambient glow from the stripe */
+header::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(180deg, rgba(240, 135, 74, 0.07) 0%, transparent 100%);
+    pointer-events: none;
+}
+
 header h1 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    background: linear-gradient(90deg, #ef6a27, #f0c0a0, #d162a4, #1982c4);
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(90deg, #ef7627 0%, #f5c4a2 40%, #d162a4 70%, #3b9edc 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    position: relative;
 }
 
 .last-updated {
-    font-size: 0.75rem;
+    font-size: 0.73rem;
     color: var(--text-dim);
-    margin-top: 4px;
-    letter-spacing: 0.01em;
+    margin-top: 5px;
+    letter-spacing: 0.02em;
 }
 
 /* === NAV TABS === */
@@ -98,22 +111,22 @@ header h1 {
     display: flex;
     background: var(--bg-deep);
     border-bottom: 1px solid var(--border);
-    padding: 0 30px;
-    gap: 2px;
+    padding: 0 var(--gutter);
+    gap: 4px;
 }
 
 .tab-btn {
-    padding: 10px 18px;
+    padding: 12px 20px;
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
     cursor: pointer;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-muted);
     transition: color 0.15s, border-color 0.15s;
     margin-bottom: -1px;
-    flex: unset;
+    letter-spacing: 0.01em;
 }
 
 .tab-btn:hover { color: var(--text); }
@@ -126,8 +139,8 @@ header h1 {
 /* === MAIN === */
 main {
     flex: 1;
-    padding: 24px 30px;
-    background: var(--bg-app);
+    padding: 32px var(--gutter);
+    background: transparent;
     color: var(--text);
 }
 
@@ -145,69 +158,92 @@ main {
 
 .sort-controls {
     background: var(--bg-panel);
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-radius: var(--radius);
     border: 1px solid var(--border);
+    box-shadow: var(--shadow);
 }
 
 .sort-controls label {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin-right: 4px;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-right: 6px;
 }
 
 /* === BUTTONS === */
 .toggle-btn {
-    padding: 6px 14px;
+    padding: 6px 16px;
     border: 1px solid var(--border);
-    background: var(--bg-panel);
+    background: transparent;
     color: var(--text-muted);
     cursor: pointer;
-    border-radius: var(--radius-sm);
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    border-radius: var(--radius-pill);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
 .toggle-btn:hover {
     background: var(--bg-hover);
     color: var(--text);
-    border-color: #555a63;
+    border-color: #3d4455;
 }
 
 .toggle-btn.active {
     background: var(--accent-dim);
     color: var(--accent);
-    border-color: rgba(96, 165, 250, 0.4);
+    border-color: rgba(96, 165, 250, 0.35);
+    box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.15);
 }
 
 /* === VIEWS === */
 .view { margin-top: 0; }
 .view.hidden { display: none; }
 
-#colorChart { max-height: 500px; }
+.chart-sort-controls { margin-bottom: 12px; }
 
-.hex-section { margin-top: 20px; }
+#colorChart { max-height: 520px; }
+
+.color-strip {
+    height: 12px;
+    border-radius: 6px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    opacity: 0.82;
+    transition: opacity 0.2s;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.4);
+}
+.color-strip:hover { opacity: 1; }
+
+.hex-section { margin-top: 18px; }
 
 .hex-textarea-label {
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    margin-bottom: 6px;
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 7px;
 }
 
 .hex-textarea {
     width: 100%;
     min-height: 72px;
-    background: var(--bg-panel);
+    background: var(--bg-deep);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 10px 12px;
+    padding: 10px 14px;
     color: var(--text-muted);
     font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     resize: vertical;
+    transition: border-color 0.15s;
 }
+.hex-textarea:focus { outline: none; border-color: rgba(96,165,250,0.4); }
 
 /* === USER GRID (color ownership matrix) === */
 #userGrid { overflow-x: auto; }
@@ -304,10 +340,11 @@ main {
 /* === CONTROLS PANEL === */
 .controls {
     background: var(--bg-panel);
-    padding: 14px 16px;
+    padding: 14px 18px;
     border-radius: var(--radius);
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     border: 1px solid var(--border);
+    box-shadow: var(--shadow);
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
@@ -315,13 +352,15 @@ main {
 }
 
 .controls label {
-    font-weight: 500;
-    font-size: 0.85rem;
-    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
 #userSelect, #partnerUserSelect {
-    padding: 6px 12px;
+    padding: 7px 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
@@ -329,6 +368,7 @@ main {
     background: var(--bg-deep);
     color: var(--text);
     cursor: pointer;
+    transition: border-color 0.15s;
 }
 
 #userSelect:focus, #partnerUserSelect:focus {
@@ -339,11 +379,12 @@ main {
 /* === COMPARISON RESULTS === */
 .comparison-result {
     background: var(--bg-panel);
-    padding: 14px 16px;
+    padding: 16px 20px;
     margin-bottom: 10px;
     border-radius: var(--radius);
     border: 1px solid var(--border);
     border-left: 3px solid var(--accent);
+    box-shadow: var(--shadow);
 }
 
 .result-header {
@@ -354,7 +395,7 @@ main {
 }
 
 .comparison-result .user-name {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--link);
     cursor: pointer;
     font-size: 1rem;
@@ -392,50 +433,56 @@ main {
 .color-samples {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 0;
     margin-top: 10px;
 }
 
 .color-sample {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-sm);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 28px;
+    height: 28px;
+    border-radius: 0;
+    border: none;
     cursor: pointer;
-    transition: transform 0.15s, border-color 0.15s;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    z-index: 0;
 }
 
 .color-sample:hover {
-    transform: scale(1.12);
-    border-color: rgba(96, 165, 250, 0.5);
+    transform: scale(1.3);
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    z-index: 1;
 }
 
 /* === PARTNER HERO === */
 .partner-hero {
     text-align: center;
     background: var(--bg-panel);
-    padding: 24px;
+    padding: 28px 24px;
     border-radius: var(--radius);
     border: 1px solid var(--border);
     border-top: 2px solid var(--accent);
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
 }
 
 .partner-label {
     text-transform: uppercase;
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
     color: var(--text-dim);
-    margin-bottom: 6px;
-    font-weight: 600;
+    margin-bottom: 8px;
+    font-weight: 700;
 }
 
 .partner-hero .partner-name {
-    font-size: 1.4rem;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 800;
     color: var(--link);
     cursor: pointer;
     margin-bottom: 6px;
+    letter-spacing: -0.01em;
 }
 
 .partner-hero .partner-name:hover { text-decoration: underline; }
@@ -447,20 +494,22 @@ main {
 
 .partner-section {
     background: var(--bg-panel);
-    padding: 16px 20px;
+    padding: 18px 22px;
     border-radius: var(--radius);
     border: 1px solid var(--border);
     border-left: 3px solid var(--accent);
     margin-bottom: 16px;
+    box-shadow: var(--shadow);
 }
 
 .partner-section h3 {
     color: var(--text);
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.88rem;
+    font-weight: 700;
     margin-bottom: 4px;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
+    letter-spacing: 0.01em;
 }
 
 .section-header {
@@ -482,26 +531,41 @@ main {
 }
 
 .runner-ups-heading {
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    font-weight: 600;
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin: 28px 0 12px;
+    letter-spacing: 0.1em;
+    margin: 32px 0 14px;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--border);
 }
 
 /* === RANKINGS === */
-.ranking-section { margin-bottom: 40px; }
+.ranking-section { margin-bottom: 48px; }
 
 .ranking-section h2 {
     color: var(--text);
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Accent bar before section headings */
+.ranking-section h2::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 1em;
+    background: linear-gradient(180deg, var(--accent-warm), var(--accent));
+    border-radius: 2px;
+    flex-shrink: 0;
 }
 
 table {
@@ -511,12 +575,13 @@ table {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
+    box-shadow: var(--shadow);
 }
 
 table thead { background: var(--bg-deep); }
 
 table th, table td {
-    padding: 10px 14px;
+    padding: 11px 16px;
     text-align: left;
     border-bottom: 1px solid var(--border-subtle);
     color: var(--text);
@@ -524,29 +589,42 @@ table th, table td {
 }
 
 table th {
-    color: var(--text-muted);
-    font-size: 0.78rem;
-    font-weight: 600;
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.09em;
 }
 
+table tbody tr { transition: background 0.1s; }
 table tbody tr:hover { background: var(--bg-hover); }
 table tbody tr:last-child td { border-bottom: none; }
+
+/* Subtle zebra stripe */
+table tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+table tbody tr:nth-child(even):hover { background: var(--bg-hover); }
 
 table tbody .user-name {
     cursor: pointer;
     color: var(--link);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 table tbody .user-name:hover { text-decoration: underline; }
 
+/* Rank column */
 table td:first-child {
     color: var(--text-dim);
-    font-size: 0.85rem;
-    width: 50px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    width: 56px;
+    font-variant-numeric: tabular-nums;
 }
+
+/* Top-3 rank coloring */
+table tbody tr:nth-child(1) td:first-child { color: #fbbf24; }
+table tbody tr:nth-child(2) td:first-child { color: #9ca3af; }
+table tbody tr:nth-child(3) td:first-child { color: #c47b4a; }
 
 /* === MODAL === */
 .modal {
@@ -554,8 +632,8 @@ table td:first-child {
     position: fixed;
     z-index: 1000;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
 }
 
 .modal.show {
@@ -565,12 +643,12 @@ table td:first-child {
 }
 
 .modal-content {
-    background: var(--bg-panel);
+    background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 28px;
+    padding: 32px;
     width: 90%;
-    max-width: 480px;
+    max-width: 500px;
     box-shadow: var(--shadow-lg);
     position: relative;
     color: var(--text);
@@ -578,8 +656,8 @@ table td:first-child {
 
 .close {
     position: absolute;
-    top: 16px;
-    right: 20px;
+    top: 18px;
+    right: 22px;
     color: var(--text-dim);
     font-size: 22px;
     font-weight: 300;
@@ -592,9 +670,11 @@ table td:first-child {
 
 #modalUserInfo h2 {
     color: var(--text);
-    font-size: 1.1rem;
-    margin-bottom: 16px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 18px;
     padding-right: 30px;
+    letter-spacing: -0.01em;
 }
 
 #modalUserInfo p {
@@ -658,29 +738,25 @@ input[type="checkbox"] {
 /* === TOAST === */
 .toast {
     position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--bg-panel);
+    bottom: 28px;
+    right: 28px;
+    background: var(--bg-card);
     color: var(--text);
     border: 1px solid var(--border);
     border-left: 3px solid var(--success);
-    padding: 10px 16px;
+    padding: 11px 18px;
     border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-lg);
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     animation: toastIn 0.2s ease, toastOut 0.2s ease 1.8s forwards;
     z-index: 10000;
 }
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
-    header { padding: 16px 16px 12px; }
-    .tabs { padding: 0 16px; }
-    main { padding: 16px; }
     .partner-columns { grid-template-columns: 1fr; }
     .controls { flex-direction: column; align-items: flex-start; }
-    header h1 { font-size: 1.3rem; }
 }
 
 /* === ANIMATIONS === */
