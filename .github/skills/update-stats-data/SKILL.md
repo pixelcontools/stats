@@ -21,9 +21,11 @@ Follow every step in order. Do not skip steps.
 **Option A — Full API fetch (default, ~26 minutes):**
 Inform the user before starting that this will take about 26 minutes.
 
+Always pass `--save-raw` unless the user explicitly says not to. This saves the full API dump to `scripts/users.json` (gitignored) so future reprocessing can skip the 26-minute fetch.
+
 ```powershell
 cd c:\<repo-root>
-python scripts/fetch_users.py
+python scripts/fetch_users.py --save-raw
 ```
 
 After the script finishes, confirm `userdata_pixelcons.json` was written at the repo root and report the PIXELCONS member count from the script output.
@@ -37,11 +39,6 @@ python scripts/update_data.py
 
 # Or pass an explicit path to any raw dump:
 python scripts/update_data.py <absolute-path-to-raw-users.json>
-```
-
-To generate a local raw dump during a full fetch run for future use:
-```powershell
-python scripts/fetch_users.py --save-raw
 ```
 
 ### Step 2 — Start Local Server

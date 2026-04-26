@@ -1,7 +1,7 @@
 """
 Fetch user profiles from GeoPixels API and produce userdata_pixelcons.json for the stats site.
 
-Fetches all users (IDs 1–13000), filters for PIXELCONS guild members,
+Fetches all users (IDs 1–15000), filters for PIXELCONS guild members,
 and writes the compact userdata_pixelcons.json used by the site.
 
 Usage:
@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 from typing import Optional, Dict
 
 API_URL = "https://geopixels.net/GetUserProfile"
-TOTAL_USERS = 13000
+TOTAL_USERS = 15000
 BATCH_SIZE = 50  # Concurrent requests per batch
 PAUSE_SECONDS = 6  # Pause between batches to be API-courteous
 
