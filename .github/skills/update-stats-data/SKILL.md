@@ -24,7 +24,8 @@ Inform the user before starting that this will take about 26 minutes.
 Always pass `--save-raw` unless the user explicitly says not to. This saves the full API dump to `scripts/users.json` (gitignored) so future reprocessing can skip the 26-minute fetch.
 
 ```powershell
-cd c:\<repo-root>
+$repoRoot = git rev-parse --show-toplevel
+cd $repoRoot
 python scripts/fetch_users.py --save-raw
 ```
 
@@ -46,7 +47,8 @@ python scripts/update_data.py <absolute-path-to-raw-users.json>
 Start Python's HTTP server as a background process using `Start-Job` so it does not block the terminal:
 
 ```powershell
-$job = Start-Job -ScriptBlock { Set-Location 'c:\<repo-root>'; python -m http.server 8000 }
+$repoRoot = git rev-parse --show-toplevel
+$job = Start-Job -ScriptBlock { param($r) Set-Location $r; python -m http.server 8000 } -ArgumentList $repoRoot
 Start-Sleep -Seconds 2
 (Test-NetConnection -ComputerName localhost -Port 8000 -WarningAction SilentlyContinue).TcpTestSucceeded
 ```
@@ -80,7 +82,7 @@ Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
 **Do NOT run these yourself.** Present them to the user as a ready-to-copy block and explain what each does:
 
 ```bash
-cd c:\<repo-root>
+cd <repo-root>
 git add userdata_pixelcons.json
 git commit -m "chore: refresh color ownership data"
 git push origin main

@@ -23,7 +23,8 @@ Follow every step in order.
 ### Step 1 — Run the Refresh Script
 
 ```powershell
-cd c:\<repo-root>
+$repoRoot = git rev-parse --show-toplevel
+cd $repoRoot
 python scripts/refresh_members.py
 ```
 
@@ -38,7 +39,8 @@ After it finishes, confirm the output shows `Members refreshed: <number>/<number
 ### Step 2 — Start Local Server
 
 ```powershell
-$job = Start-Job -ScriptBlock { Set-Location 'c:\<repo-root>'; python -m http.server 8000 }
+$repoRoot = git rev-parse --show-toplevel
+$job = Start-Job -ScriptBlock { param($r) Set-Location $r; python -m http.server 8000 } -ArgumentList $repoRoot
 Start-Sleep -Seconds 2
 (Test-NetConnection -ComputerName localhost -Port 8000 -WarningAction SilentlyContinue).TcpTestSucceeded
 ```
@@ -70,7 +72,7 @@ Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
 **Do NOT run these.** Present to the user:
 
 ```bash
-cd c:\<repo-root>
+cd <repo-root>
 git add userdata_pixelcons.json
 git commit -m "chore: refresh member color ownership data"
 git push origin main

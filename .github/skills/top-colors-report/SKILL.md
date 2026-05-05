@@ -17,7 +17,8 @@ Reads the raw `scripts/users.json` dump (produced by `fetch_users.py --save-raw`
 Check that `scripts/users.json` exists:
 
 ```powershell
-Test-Path 'c:\<repo-root>\scripts\users.json'
+$repoRoot = git rev-parse --show-toplevel
+Test-Path (Join-Path $repoRoot 'scripts\users.json')
 ```
 
 If `False`, tell the user they need to run the `update-stats-data` skill first to fetch a raw dump, then stop.
@@ -25,7 +26,7 @@ If `False`, tell the user they need to run the `update-stats-data` skill first t
 If `True`, also report its last-write timestamp so the user knows how fresh the data is:
 
 ```powershell
-(Get-Item 'c:\<repo-root>\scripts\users.json').LastWriteTime
+(Get-Item (Join-Path $repoRoot 'scripts\users.json')).LastWriteTime
 ```
 
 ### Step 2 — Generate the Table
@@ -38,7 +39,7 @@ import json, re, tempfile, os
 
 N = 100  # replace with user-specified N if provided
 
-with open(r'c:\<repo-root>\scripts\users.json', 'r', encoding='utf-8') as f:
+with open('scripts/users.json', 'r', encoding='utf-8') as f:
     users = json.load(f)
 
 def color_count(u):
@@ -71,12 +72,21 @@ print(out)
 
 **Note:** PowerShell here-strings (`@'...'@`) don't support inline variable substitution. If you need to vary N, write the script to a temp `.py` file and run it with `python <path>` instead. Example:
 
+First, navigate to the repo root so relative paths work:
+
+```powershell
+$repoRoot = git rev-parse --show-toplevel
+cd $repoRoot
+```
+
+Then write and run the script:
+
 ```powershell
 $n = 100  # change as needed
 $script = @"
 import json, re, tempfile, os
 N = $n
-with open(r'c:\<repo-root>\scripts\users.json', 'r', encoding='utf-8') as f:
+with open('scripts/users.json', 'r', encoding='utf-8') as f:
     users = json.load(f)
 def color_count(u):
     c = u.get('colors', '')
