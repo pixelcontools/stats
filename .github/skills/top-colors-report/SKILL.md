@@ -59,7 +59,10 @@ lines = [
     f'|------|----------|-------|-------------|',
 ]
 for i, u in enumerate(ranked, 1):
-    lines.append(f"| {i} | {u.get('name','')} | {strip_html(u.get('guildTag','') or '')} | {color_count(u)} |")
+    name = u.get('name', '')
+    uid = u.get('id', '')
+    display = f'{name}#{uid}' if uid else name
+    lines.append(f"| {i} | {display} | {strip_html(u.get('guildTag','') or '')} | {color_count(u)} |")
 
 out = '\n'.join(lines)
 tmp = os.path.join(tempfile.gettempdir(), f'top{N}_colors.md')
@@ -100,7 +103,10 @@ def strip_html(s):
 ranked = sorted(users, key=color_count, reverse=True)[:N]
 lines = ['| Rank | Username | Guild | Colors Owned |', '|------|----------|-------|-------------|']
 for i, u in enumerate(ranked, 1):
-    lines.append(f'| {i} | {u.get(\"name\",\"\")} | {strip_html(u.get(\"guildTag\",\"\") or \"\")} | {color_count(u)} |')
+    name = u.get('name', '')
+    uid = u.get('id', '')
+    display = f'{name}#{uid}' if uid else name
+    lines.append(f'| {i} | {display} | {strip_html(u.get(\"guildTag\",\"\") or \"\")} | {color_count(u)} |')
 out = '\n'.join(lines)
 import tempfile, os
 tmp = os.path.join(tempfile.gettempdir(), f'top{N}_colors.md')
