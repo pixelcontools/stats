@@ -47,6 +47,13 @@ def main():
         print("Error: userdata_pixelcons.json is empty or invalid.")
         return
 
+    if isinstance(existing, dict):
+        existing = existing.get("members", [])
+
+    if not isinstance(existing, list) or not existing:
+        print("Error: userdata_pixelcons.json does not contain any members.")
+        return
+
     # Validate this is compact format (has 'i' key, not raw API format)
     if "id" in existing[0]:
         print("Error: userdata_pixelcons.json appears to be raw API format, not compact format.")
