@@ -1,7 +1,7 @@
 """
 Fetch user profiles from GeoPixels API and produce userdata_pixelcons.json for the stats site.
 
-Fetches all users (IDs 1–15000), filters for PIXELCONS guild members,
+Fetches all users (IDs 1–20000), filters for PIXELCONS guild members,
 and writes the compact userdata_pixelcons.json used by the site.
 
 Usage:
@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 from typing import Optional, Dict
 
 API_URL = "https://geopixels.net/GetUserProfile"
-TOTAL_USERS = 15000
+TOTAL_USERS = 20000
 BATCH_SIZE = 50  # Concurrent requests per batch
 PAUSE_SECONDS = 6  # Pause between batches to be API-courteous
 
@@ -42,14 +42,23 @@ def is_pixelcons_member(user: Dict) -> bool:
     return "PIXELCONS" in plain.upper()
 
 
-def fetch_user(user_id: int) -> Optional[Dict]:
-    """Fetch a single user profile from the API."""
-    try:
-        response = session.post(API_URL, json={"targetId": user_id}, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except Exception:
-        return None
+def fetch_user(user_id: int, retries: int = 2) -> Optional[Dict]:
+    """Fetch a single user profile from the API.
+
+    Retries on transient failures (timeouts, connection resets) so a brief
+    hiccup during a long run doesn't silently drop a real member from the
+    output — a single bad batch previously caused confirmed PIXELCONS
+    members to disappear from the compact file entirely.
+    """
+    for attempt in range(retries + 1):
+        try:
+            response = session.post(API_URL, json={"targetId": user_id}, timeout=10)
+            response.raise_for_status()
+            return response.json()
+        except Exception:
+            if attempt < retries:
+                time.sleep(1)
+    return None
 
 
 def to_compact(user: Dict) -> Dict:
