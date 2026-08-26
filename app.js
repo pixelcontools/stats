@@ -92,6 +92,7 @@ function processData() {
             id: user.i,
             name: user.n,
             level: user.l,
+            experience: user.e || 0,
             colors: colors
         };
     });
@@ -186,6 +187,7 @@ function showUserModal(userId) {
     modalContent.innerHTML = `
         <h2>${formatUsername(user)}</h2>
         <p><strong>Level:</strong> ${user.level}</p>
+        <p><strong>Total XP:</strong> ${user.experience.toLocaleString()}</p>
         <p><strong>Colors Owned:</strong> ${user.colors.length}</p>
         <div class="guild-tag">
             <strong>Guild Tag:</strong><br>
@@ -730,6 +732,8 @@ function initRankings() {
     renderMostColorsRanking();
     renderMostSharedRanking();
     renderMostUniqueRanking();
+    renderLevelRanking();
+    renderXPRanking();
 }
 
 function renderMostColorsRanking() {
@@ -819,6 +823,48 @@ function renderMostUniqueRanking() {
                 <td>${index + 1}</td>
                 <td><span class="user-name" data-user-id="${item.user.id}">${formatUsername(item.user)}</span></td>
                 <td>${item.uniqueColors}</td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = html;
+}
+
+function renderLevelRanking() {
+    const tbody = document.querySelector('#levelTable tbody');
+
+    const sorted = [...processedData.users]
+        .sort((a, b) => b.level - a.level)
+        .slice(0, 50);
+
+    let html = '';
+    sorted.forEach((user, index) => {
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td><span class="user-name" data-user-id="${user.id}">${formatUsername(user)}</span></td>
+                <td>${user.level}</td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = html;
+}
+
+function renderXPRanking() {
+    const tbody = document.querySelector('#xpTable tbody');
+
+    const sorted = [...processedData.users]
+        .sort((a, b) => b.experience - a.experience)
+        .slice(0, 50);
+
+    let html = '';
+    sorted.forEach((user, index) => {
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td><span class="user-name" data-user-id="${user.id}">${formatUsername(user)}</span></td>
+                <td>${user.experience.toLocaleString()}</td>
             </tr>
         `;
     });

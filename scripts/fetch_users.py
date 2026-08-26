@@ -62,11 +62,12 @@ def fetch_user(user_id: int, retries: int = 2) -> Optional[Dict]:
 
 
 def to_compact(user: Dict) -> Dict:
-    """Convert a raw user profile to compact format (i=id, n=name, l=level, c=colors)."""
+    """Convert a raw user profile to compact format (i=id, n=name, l=level, e=experience, c=colors)."""
     return {
         "i": user["id"],
         "n": user.get("name", ""),
         "l": user.get("level", 0),
+        "e": user.get("experience", 0),
         "c": user.get("colors", ""),
     }
 
