@@ -84,6 +84,7 @@ def main():
                     "i": result["id"],
                     "n": result.get("name", existing_by_id[user_id]["n"]),
                     "l": result.get("level", existing_by_id[user_id]["l"]),
+                    "e": result.get("experience", existing_by_id[user_id].get("e", 0)),
                     "c": result.get("colors", existing_by_id[user_id]["c"]),
                 })
             else:
