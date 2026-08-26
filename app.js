@@ -733,7 +733,6 @@ function initRankings() {
     renderMostSharedRanking();
     renderMostUniqueRanking();
     renderLevelRanking();
-    renderXPRanking();
 }
 
 function renderMostColorsRanking() {
@@ -833,27 +832,7 @@ function renderMostUniqueRanking() {
 function renderLevelRanking() {
     const tbody = document.querySelector('#levelTable tbody');
 
-    const sorted = [...processedData.users]
-        .sort((a, b) => b.level - a.level)
-        .slice(0, 50);
-
-    let html = '';
-    sorted.forEach((user, index) => {
-        html += `
-            <tr>
-                <td>${index + 1}</td>
-                <td><span class="user-name" data-user-id="${user.id}">${formatUsername(user)}</span></td>
-                <td>${user.level}</td>
-            </tr>
-        `;
-    });
-
-    tbody.innerHTML = html;
-}
-
-function renderXPRanking() {
-    const tbody = document.querySelector('#xpTable tbody');
-
+    // Sort by XP (the precise underlying stat) so same-level users break ties correctly
     const sorted = [...processedData.users]
         .sort((a, b) => b.experience - a.experience)
         .slice(0, 50);
@@ -864,6 +843,7 @@ function renderXPRanking() {
             <tr>
                 <td>${index + 1}</td>
                 <td><span class="user-name" data-user-id="${user.id}">${formatUsername(user)}</span></td>
+                <td>${user.level}</td>
                 <td>${user.experience.toLocaleString()}</td>
             </tr>
         `;
